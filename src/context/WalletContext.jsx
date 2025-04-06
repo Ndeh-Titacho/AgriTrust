@@ -9,6 +9,7 @@ export const WalletProvider = ({ children }) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [userRole, setUserRole] = useState("")
+  const [status, setStatus] = useState("")
 
   const storeWalletInfo = async (address, selectedRole) => {
     try {
@@ -16,9 +17,11 @@ export const WalletProvider = ({ children }) => {
       const userData = {
         wallet_address: address,
         role: selectedRole,
+        status: status,
         auth_type: 'web3',
         last_connected: new Date().toISOString()
       }
+      console.log('Status before storage:', status);
 
       const { error } = await supabase
         .from('web3_users')
@@ -95,6 +98,20 @@ export const WalletProvider = ({ children }) => {
           throw new Error("Please select a role to register")
         }
         
+        // Set status first
+        if(selectedRole === 'verifier'){
+          setStatus('pending')
+          console.log('Setting status to pending')
+        } else {
+          setStatus('active')
+          console.log('Setting status to active')
+        }
+        
+        // Wait for state update
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        console.log('Current status after setting:', status);
+        
         setAccount(account)
         await storeWalletInfo(account, selectedRole)
       }
@@ -136,6 +153,10 @@ export const WalletProvider = ({ children }) => {
     setUserRole("")
   }
 
+  
+
+ 
+
   return (
     <WalletContext.Provider value={{
       account,
@@ -144,11 +165,12 @@ export const WalletProvider = ({ children }) => {
       userRole,
       connectWallet,
       disconnectWallet,
-      isConnected: Boolean(account)
+      
+      isConnected: Boolean(account),
     }}>
       {children}
     </WalletContext.Provider>
-  )
+  );
 }
 
 export const useWallet = () => {
@@ -156,5 +178,5 @@ export const useWallet = () => {
   if (!context) {
     throw new Error("useWallet must be used within a WalletProvider")
   }
-  return context
-}
+  return context;
+};

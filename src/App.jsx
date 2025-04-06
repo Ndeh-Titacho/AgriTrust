@@ -5,18 +5,23 @@ import { About } from './pages/About'
 import { RootLayout } from "./components/RootLayout";
 import { Login } from "./components/sections/Login";
 import { WalletProvider } from './context/WalletContext'
+import { AuthContextProvider } from './context/supabaseAuthContext'
+import { Dashboard } from './pages/Dashboard'
 
 function App() {
   return (
     <WalletProvider>
-      <Routes>
-        <Route element={<RootLayout />} >
-          <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<HomePage />} />
-          <Route path="/login" element={<Login />} />
-        </Route>
-      </Routes>
+      <AuthContextProvider>
+        <Routes>
+          <Route element={<RootLayout />} >
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<HomePage />} />
+            <Route path="/login" element={<Login />} />
+          </Route>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Routes>
+      </AuthContextProvider>
     </WalletProvider>
   )
 }

@@ -1,13 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Wallet, Wheat, ShoppingBag, Award, Landmark } from 'lucide-react'
 import { Button } from '../ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { FullTabs } from '../ui/FullTabs'
 import { useWallet } from '../../context/WalletContext'
 
 export const Login = () => {
   const { account, loading, connectWallet } = useWallet()
   const [selectedRole, setSelectedRole] = useState("")
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const roleCards = document.querySelectorAll('.role-card')
+      let clickedInside = false
+      
+      roleCards.forEach(card => {
+        if (card.contains(event.target)) {
+          clickedInside = true
+        }
+      })
+      
+      if (!clickedInside) {
+        setSelectedRole("")
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [])
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role)
@@ -21,6 +43,8 @@ export const Login = () => {
     }
     await connectWallet(selectedRole)
   }
+
+  
 
   return (
     <div className='flex items-center justify-center min-h-screen pt-20'>
@@ -53,7 +77,7 @@ export const Login = () => {
 
               {/* Farmer Role Cards */}
               <Card onClick={() => handleRoleSelect("farmer")} 
-                className={`hover:border-green-300 cursor-pointer transition-all duration-200
+                className={`role-card hover:border-green-300 cursor-pointer transition-all duration-200
                 ${selectedRole === "farmer" ? "border-green-500 bg-green-50" : ""}`}>
                 <CardHeader className="flex flex-col items-center">
                   <CardTitle className="bg-green-400 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
@@ -70,7 +94,7 @@ export const Login = () => {
 
               {/* Consumer Role Cards */}
               <Card onClick={() => handleRoleSelect("consumer")} 
-                className={`hover:border-blue-300 cursor-pointer transition-all duration-200
+                className={`role-card hover:border-blue-300 cursor-pointer transition-all duration-200
                 ${selectedRole === "consumer" ? "border-blue-500 bg-blue-50" : ""}`}>
                 <CardHeader className="flex flex-col items-center">
                   <CardTitle className="bg-blue-300 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
@@ -87,7 +111,7 @@ export const Login = () => {
 
               {/* Verifier Role Cards */}
               <Card onClick={() => handleRoleSelect("verifier")} 
-                className={`hover:border-indigo-400 cursor-pointer transition-all duration-200
+                className={`role-card hover:border-indigo-400 cursor-pointer transition-all duration-200
                 ${selectedRole === "verifier" ? "border-indigo-500 bg-indigo-50" : ""}`}>
                 <CardHeader className="flex flex-col items-center">
                   <CardTitle className="bg-indigo-400 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
@@ -104,7 +128,7 @@ export const Login = () => {
 
               {/* Financial Role Cards */}
               <Card onClick={() => handleRoleSelect("financial")} 
-                className={`hover:border-stone-400 cursor-pointer transition-all duration-200
+                className={`role-card hover:border-stone-400 cursor-pointer transition-all duration-200
                 ${selectedRole === "financial" ? "border-stone-500 bg-stone-50" : ""}`}>
                 <CardHeader className="flex flex-col items-center">
                   <CardTitle className="bg-stone-600 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
