@@ -1,152 +1,105 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Wallet, Wheat, ShoppingBag, Award, Landmark } from 'lucide-react'
-import { Button } from '../ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Button } from '../ui/button'
 import { FullTabs } from '../ui/FullTabs'
+import { UserAuth } from '../../context/supabaseAuthContext'
 import { useWallet } from '../../context/WalletContext'
+import { useNavigate } from 'react-router-dom'
 
 export const Login = () => {
-  const { account, loading, connectWallet } = useWallet()
-  const [selectedRole, setSelectedRole] = useState("")
+  const { handleRoleSelect, selectedRole } = UserAuth()
+  const { connectWallet, account, loading, error } = useWallet()
+  const navigate = useNavigate()
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const roleCards = document.querySelectorAll('.role-card')
-      let clickedInside = false
-      
-      roleCards.forEach(card => {
-        if (card.contains(event.target)) {
-          clickedInside = true
-        }
-      })
-      
-      if (!clickedInside) {
-        setSelectedRole("")
-      }
-    }
-
-    document.addEventListener('click', handleClickOutside)
-    return () => {
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [])
-
-  const handleRoleSelect = (role) => {
-    setSelectedRole(role)
-    console.log(`Selected Role: ${role}`)
+  const handleRoleClick = (roleId) => {
+    handleRoleSelect(roleId)
+    navigate('/auth')
   }
 
-  const handleConnect = async () => {
-    if (!selectedRole) {
-      alert("Please select a role first")
-      return
+  const roles = [
+    {
+      id: 'farmer',
+      title: 'Farmer',
+      description: 'List products, get verified, and secure funding',
+      icon: Wheat,
+      bgColor: 'bg-green-400',
+      hoverBorder: 'hover:border-green-300',
+      selectedBg: 'bg-green-50',
+      selectedBorder: 'border-green-500'
+    },
+    {
+      id: 'consumer',
+      title: 'Consumer',
+      description: 'Find verified products',
+      icon: ShoppingBag,
+      bgColor: 'bg-blue-300',
+      hoverBorder: 'hover:border-blue-300',
+      selectedBg: 'bg-blue-50',
+      selectedBorder: 'border-blue-500'
+    },
+    {
+      id: 'verifier',
+      title: 'Verifier',
+      description: 'Verify farms and produce',
+      icon: Award,
+      bgColor: 'bg-indigo-400',
+      hoverBorder: 'hover:border-indigo-400',
+      selectedBg: 'bg-indigo-50',
+      selectedBorder: 'border-indigo-500'
+    },
+    {
+      id: 'financial',
+      title: 'Financial',
+      description: 'Fund farmers and manage loans',
+      icon: Landmark,
+      bgColor: 'bg-stone-600',
+      hoverBorder: 'hover:border-stone-400',
+      selectedBg: 'bg-stone-50',
+      selectedBorder: 'border-stone-500'
     }
-    await connectWallet(selectedRole)
-  }
-
-  
+  ]
 
   return (
-    <div className='flex items-center justify-center min-h-screen pt-20'>
-      <div className='border p-8 rounded-lg shadow-md w-full max-w-md'>
-        <div className='flex flex-col items-center space-y-6'>
-          <h1 className='text-4xl font-bold text-center'>Welcome to AgriTrust</h1>
-          <h2 className='text-gray-600 text-center'>Transparent, trusted, traceable</h2>
-
-          <div className='bg-indigo-200 w-full rounded-lg p-6 flex flex-col items-center space-y-4'>
-            <div className='rounded-md flex gap-4 items-center justify-center w-full'>
-              <Wallet className='text-indigo-600' /> 
-              <span className='font-semibold'>
-                {account ? `Connected: ${account.slice(0, 6)}...${account.slice(-4)}` : 'Web3 Authentication'}
-              </span>
-            </div>
-            
-            <Button 
-              variant="secondary" 
-              className="bg-indigo-500 text-white w-full hover:bg-indigo-600 disabled:bg-gray-400"
-              onClick={handleConnect}
-              disabled={loading || !selectedRole}
-            >
-              {loading ? 'Connecting...' : account ? 'Connected' : 'Connect Wallet'}
-            </Button>
+    <div className='min-h-screen bg-gradient-to-b from-white to-gray-100'>
+      <div className='container mx-auto px-4 py-16'>
+        <div className='max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden'>
+          {/* Header Section */}
+          <div className='relative bg-gradient-to-r from-blue-600 to-blue-800 px-8 py-12 text-white'>
+            <h1 className='text-4xl font-bold text-center mb-2'>
+              Welcome to AgriTrust
+            </h1>
+            <h2 className='text-blue-100 text-center'>
+              Transparent • Trusted • Traceable
+            </h2>
           </div>
 
-          <div>
-            <h2 className='font-semibold text-left pb-2'>Select your role</h2>
+          <div className='p-8'>
+            <h2 className='text-xl font-semibold mb-4'>Select your role</h2>
             <div className='grid grid-cols-2 gap-4'>
-
-              {/* Farmer Role Cards */}
-              <Card onClick={() => handleRoleSelect("farmer")} 
-                className={`role-card hover:border-green-300 cursor-pointer transition-all duration-200
-                ${selectedRole === "farmer" ? "border-green-500 bg-green-50" : ""}`}>
-                <CardHeader className="flex flex-col items-center">
-                  <CardTitle className="bg-green-400 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
-                    <Wheat/>
-                  </CardTitle>
-                  <CardDescription  className="font-bold text-black text-base sm:text-lg">
-                    Farmer
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="">
-                  <p className='text-sm text-gray-600'>List products, get verified, and secure funding</p>
-                </CardContent>
-              </Card>
-
-              {/* Consumer Role Cards */}
-              <Card onClick={() => handleRoleSelect("consumer")} 
-                className={`role-card hover:border-blue-300 cursor-pointer transition-all duration-200
-                ${selectedRole === "consumer" ? "border-blue-500 bg-blue-50" : ""}`}>
-                <CardHeader className="flex flex-col items-center">
-                  <CardTitle className="bg-blue-300 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
-                    <ShoppingBag/>
-                  </CardTitle>
-                  <CardDescription  className="font-bold text-black text-base sm:text-lg">
-                    Consumer
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="">
-                  <p className='text-sm text-gray-600'>Find verified products</p>
-                </CardContent>
-              </Card>
-
-              {/* Verifier Role Cards */}
-              <Card onClick={() => handleRoleSelect("verifier")} 
-                className={`role-card hover:border-indigo-400 cursor-pointer transition-all duration-200
-                ${selectedRole === "verifier" ? "border-indigo-500 bg-indigo-50" : ""}`}>
-                <CardHeader className="flex flex-col items-center">
-                  <CardTitle className="bg-indigo-400 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
-                    <Award/>
-                  </CardTitle>
-                  <CardDescription  className="font-bold text-black text-base sm:text-lg">
-                    Verifier
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="">
-                  <p className='text-sm text-gray-600'>Verify farms and produce</p>
-                </CardContent>
-              </Card>
-
-              {/* Financial Role Cards */}
-              <Card onClick={() => handleRoleSelect("financial")} 
-                className={`role-card hover:border-stone-400 cursor-pointer transition-all duration-200
-                ${selectedRole === "financial" ? "border-stone-500 bg-stone-50" : ""}`}>
-                <CardHeader className="flex flex-col items-center">
-                  <CardTitle className="bg-stone-600 w-[50px] h-[50px] flex items-center justify-center rounded-full p-2 text-white">
-                    <Landmark/>
-                  </CardTitle>
-                  <CardDescription  className="font-bold text-black text-base sm:text-lg">
-                    Financial
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="">
-                  <p className='text-sm text-gray-600'>Fund farmers and manage loans</p>
-                </CardContent>
-              </Card>
-
+              {roles.map((role) => {
+                const Icon = role.icon
+                return (
+                  <Card 
+                    key={role.id}
+                    onClick={() => handleRoleClick(role.id)}
+                    className="group cursor-pointer transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                  >
+                    <CardHeader className="flex flex-col items-center p-4">
+                      <div className={`${role.bgColor} w-14 h-14 rounded-full flex items-center justify-center mb-3 
+                        group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon className="h-7 w-7 text-white group-hover:rotate-12 transition-all duration-300"/>
+                      </div>
+                      <CardTitle className="text-center mb-2">{role.title}</CardTitle>
+                      <CardDescription className="text-center text-sm">
+                        {role.description}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                )
+              })}
             </div>
           </div>
-
-          <FullTabs selectedRole={selectedRole} />
         </div>
       </div>
     </div>
