@@ -1,4 +1,6 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { UserAuth } from '../../context/supabaseAuthContext'
 import {
   Card,
   CardContent,
@@ -10,6 +12,14 @@ import {
 import { Wheat, ShoppingBag, Award, Landmark } from 'lucide-react';
 
 export const Role = () => {
+  const navigate = useNavigate()
+  const { handleRoleSelect } = UserAuth()
+
+  const handleClick = (roleType) => {
+    handleRoleSelect(roleType)
+    navigate('/auth')
+  }
+
   return (
     <div className='bg-white p-4 sm:p-6 lg:p-10 rounded-lg shadow-md max-w-4xl mx-auto'>
       <h2 className='text-2xl mb-4'>Choose Your Role</h2>
@@ -32,7 +42,7 @@ export const Role = () => {
               className="bg-green-500 hover:bg-green-700 active:bg-green-700
                 text-white py-3 px-6 rounded-lg w-full sm:w-auto
                 touch-manipulation text-center text-base"
-              onClick={() => console.log('Farmer clicked')}
+              onClick={() => handleClick('farmer')}
             >
               Enter
             </button>
@@ -57,7 +67,7 @@ export const Role = () => {
               className="bg-blue-300 hover:bg-blue-500 active:bg-blue-500
                 text-white py-3 px-6 rounded-lg w-full sm:w-auto
                 touch-manipulation text-center text-base"
-              onClick={() => console.log('Consumer clicked')}
+              onClick={() => handleClick('consumer')}
             >
               Enter
             </button>
@@ -82,7 +92,7 @@ export const Role = () => {
               className="bg-indigo-400 hover:bg-indigo-500 active:bg-indigo-500
                 text-white py-3 px-6 rounded-lg w-full sm:w-auto
                 touch-manipulation text-center text-base"
-              onClick={() => console.log('Verifier clicked')}
+              onClick={() => handleClick('verifier')}
             >
               Enter
             </button>
@@ -107,7 +117,7 @@ export const Role = () => {
               className="bg-stone-600 hover:bg-stone-500 active:bg-stone-500
                 text-white py-3 px-6 rounded-lg w-full sm:w-auto
                 touch-manipulation text-center text-base"
-              onClick={() => console.log('Financial clicked')}
+              onClick={() => handleClick('financial')}
             >
               Enter
             </button>

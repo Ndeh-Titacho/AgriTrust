@@ -5,24 +5,36 @@ import { About } from './pages/About'
 import { RootLayout } from "./components/RootLayout";
 import { Login } from "./components/sections/Login";
 import { WalletProvider } from './context/WalletContext'
-import { AuthContextProvider } from './context/supabaseAuthContext'
 import { Dashboard } from './pages/Dashboard'
+import { AuthContextProvider } from './context/supabaseAuthContext'
+import { FullTabs } from './components/ui/FullTabs'
+import { AuthPage } from './pages/AuthPage'
+import { FarmerDashboard } from './pages/dashboards/FarmerDashboard'
+import { ConsumerDashboard } from './pages/dashboards/ConsumerDashboard'
+import { VerifierDashboard } from './pages/dashboards/VerifierDashboard'
+import { FinancialDashboard } from './pages/dashboards/FinancialDashboard'
 
 function App() {
   return (
-    <WalletProvider>
-      <AuthContextProvider>
+    <AuthContextProvider>
+      <WalletProvider>
         <Routes>
-          <Route element={<RootLayout />} >
+          <Route element={<RootLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/auth" element={<AuthPage />} />
             <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Role-specific dashboard routes */}
+            <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
+            <Route path="/consumer/dashboard" element={<ConsumerDashboard />} />
+            <Route path="/verifier/dashboard" element={<VerifierDashboard />} />
+            <Route path="/financial/dashboard" element={<FinancialDashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
-          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
-      </AuthContextProvider>
-    </WalletProvider>
+      </WalletProvider>
+    </AuthContextProvider>
   )
 }
 

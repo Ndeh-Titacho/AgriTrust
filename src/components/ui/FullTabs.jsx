@@ -1,38 +1,55 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { UserAuth } from '../../context/supabaseAuthContext'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 import { Button } from '../ui/button'
-import { UserAuth } from '../../context/supabaseAuthContext'
 
-export const FullTabs = ({ selectedRole }) => {
+export const FullTabs = () => {
+  const navigate = useNavigate()
+  const { signInUser, signUpNewUsers, selectedRole } = UserAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [fullName, setFullName] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const { signInUser, signUpNewUsers } = UserAuth()
-  const navigate = useNavigate()
-
-  const handleSignUp = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
+    setLoading(true)
+
+    if (!selectedRole) {
+      setError('Please select a role first')
+      setLoading(false)
+      return
+    }
 
     try {
-      if (password !== confirmPassword) {
-        throw new Error("Passwords do not match")
+      const { success, error, data } = await signInUser(email, password)
+      
+      if (!success) {
+        throw new Error(error)
       }
 
-      const result = await signUpNewUsers(email, password, selectedRole)
-      
-      if (result.success) {
-        navigate("/Dashboard")
-      } else {
-        throw new Error(result.error)
+      // Redirect based on role
+      switch (data.profile.roles.role_name) {
+        case 'farmer':
+          navigate('/farmer/dashboard')
+          break
+        case 'consumer':
+          navigate('/consumer/dashboard')
+          break
+        case 'verifier':
+          navigate('/verifier/dashboard')
+          break
+        case 'financial':
+          navigate('/financial/dashboard')
+          break
+        default:
+          navigate('/dashboard')
       }
     } catch (error) {
       setError(error.message)
@@ -41,19 +58,23 @@ export const FullTabs = ({ selectedRole }) => {
     }
   }
 
-  const handleLogin = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError(null)
+    setLoading(true)
+
+    if (!selectedRole) {
+      setError('Please select a role first')
+      setLoading(false)
+      return
+    }
 
     try {
-      const result = await signInUser(email, password)
-      
-      if (result.success) {
-        navigate("/Dashboard")
-      } else {
-        throw new Error(result.error)
+      const { success, error } = await signUpNewUsers(email, password, fullName)
+      if (!success) {
+        throw new Error(error)
       }
+      navigate('/dashboard')
     } catch (error) {
       setError(error.message)
     } finally {
@@ -68,6 +89,12 @@ export const FullTabs = ({ selectedRole }) => {
           {error}
         </div>
       )}
+
+      {/* {selectedRole && (
+        <div className="text-center mb-4 p-2 bg-blue-50 rounded">
+          Selected Role: <span className="font-semibold capitalize">{selectedRole}</span>
+        </div>
+      )} */}
       
       <Tabs defaultValue="login" className="w-full mt-6">
         <TabsList className="grid w-full grid-cols-2">
@@ -153,13 +180,13 @@ export const FullTabs = ({ selectedRole }) => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Label htmlFor="name">Name</Label>
                   <Input 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    id="confirm-password" 
-                    type="password" 
-                    placeholder="Confirm your password"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    id="name" 
+                    type="text" 
+                    placeholder="Enter your name"
                     required
                   />
                 </div>
@@ -167,7 +194,7 @@ export const FullTabs = ({ selectedRole }) => {
               <CardFooter>
                 <Button 
                   type="submit" 
-                  disabled={loading || !email || !password || !confirmPassword} 
+                  disabled={loading || !email || !password || !fullName} 
                   className="w-full bg-blue-400 hover:bg-blue-500 text-white transition-colors">
                   {loading ? 'Creating account...' : 'Create Account'}
                 </Button>
