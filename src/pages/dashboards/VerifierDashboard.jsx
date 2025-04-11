@@ -1,7 +1,10 @@
 import React from 'react'
+import { Marketplace } from '../Marketplace'
 
 export const VerifierDashboard = () => {
   return (
-    <div>VerifierDashboard</div>
+    <div>VerifierDashboard
+      <Marketplace/>
+    </div>
   )
 }

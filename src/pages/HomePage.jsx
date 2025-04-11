@@ -9,8 +9,8 @@ import { Footer } from '@/components/layouts/Footer'
 
 export const HomePage = () => {
   return (
-    <div className="min-h-screen bg-green-100">
-      <Navbar/>
+    <div className="min-h-screen bg-green-100 font-poppins">
+      
       <main className="w-full">
         <div className="w-full">
           <HeroSection/>
@@ -22,7 +22,7 @@ export const HomePage = () => {
           <Explore/>
         </div>
       </main>
-      <Footer/>
+      
     </div>
   )
 }

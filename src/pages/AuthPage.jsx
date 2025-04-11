@@ -21,7 +21,7 @@ export const AuthPage = () => {
 
   if (!selectedRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center font-poppins">
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">No Role Selected</h2>
           <p className="text-gray-600 mb-4">Please select a role first to continue</p>

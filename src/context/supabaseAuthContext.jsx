@@ -7,6 +7,7 @@ export const AuthContextProvider = ({ children }) => {
   const [session, setSession] = useState(null)
   const [userRole, setUserRole] = useState(null)
   const [selectedRole, setSelectedRole] = useState(null)
+  const [userInfo, setUserInfo] = useState(null)
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role)
@@ -107,6 +108,8 @@ export const AuthContextProvider = ({ children }) => {
       // Set user role and session
       setUserRole(profile.roles.role_name)
       setSession(data.session)
+
+    
       
       return { 
         success: true, 
@@ -152,11 +155,33 @@ export const AuthContextProvider = ({ children }) => {
     return () => subscription.unsubscribe()
   }, [])
 
+   /*  //get user metadata
+    useEffect(() =>{
+
+     const fetchUserMetadata = async () => {
+
+      const { data: { user}, error} = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', session?.user.id)
+      .single()
+
+      if (user) {
+        setUserInfo(user)
+      }
+      
+      if (error) {
+        console.error('Error fetching user metadata:', error.message)
+      }
+    }
+},[]) */
+
   return (
     <AuthContext.Provider value={{
       session,
       userRole,
       selectedRole,
+     
       handleRoleSelect,
       signUpNewUsers,
       signInUser,
