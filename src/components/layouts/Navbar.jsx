@@ -10,7 +10,7 @@ export const Navbar = () => {
     const { account, loading, connectWallet } = useWallet();
     const location = useLocation();
     const spacing = `flex justify-between items-center`;
-    const button = `hover:bg-indigo-500 hover:text-white active:bg-indigo-600 transition-all duration-200 px-6 py-3 rounded-lg`;
+    const button = "px-4 py-2 rounded-md hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200"
     const mobileButton = `w-full text-left hover:bg-indigo-50 hover:text-indigo-600 active:bg-indigo-100 transition-all duration-200`;
 
     const handleConnect = async () => {

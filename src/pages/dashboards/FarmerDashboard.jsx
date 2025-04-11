@@ -1,10 +1,15 @@
-export const FarmerDashboard = () => {
+import { UserAuth } from '../../context/supabaseAuthContext'
+import { useWallet } from '../../context/WalletContext'
+
+export const FarmerDashboard = () =>  {
   const { account } = useWallet()
   const { selectedRole } = UserAuth()
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+     
+
+      <div className="max-w-7xl mx-auto font-poppins">
         <h1 className="text-3xl font-bold mb-8">Farmer Dashboard</h1>
         <div className="bg-white rounded-lg shadow p-6">
           <p>Connected Wallet: {account}</p>
