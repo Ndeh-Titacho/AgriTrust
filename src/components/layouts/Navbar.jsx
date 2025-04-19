@@ -23,7 +23,7 @@ export const Navbar = () => {
     };
 
     return (
-        <header className="w-full fixed top-0 left-0 bg-white z-50 shadow-sm">
+        <header className="w-full fixed top-0 left-0 bg-white/80 backdrop-blur-md border-b border-gray-200/20 z-50 transition-all duration-300">
             <div className="container mx-auto px-4 lg:px-8">
                 <nav className={`${spacing} h-16 sm:h-[70px]`}>
                     <div>
@@ -87,9 +87,9 @@ export const Navbar = () => {
                     </button>
                 </nav>
 
-                {/* Mobile Menu */}
+                {/* Mobile Menu with glassmorphism */}
                 {isOpen && (
-                    <div className="lg:hidden w-3/5 fixed top-17 right-0 px-4 py-4 bg-white border-t shadow-lg h-screen">
+                    <div className="lg:hidden w-3/5 fixed top-17 right-0 px-4 py-4 bg-white  border-t border-gray-200/20 shadow-lg h-screen transition-all duration-300">
                         <div className='flex flex-col gap-4 mt-4'>
                             <Button 
                                 variant="outline"

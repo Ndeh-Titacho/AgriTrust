@@ -181,7 +181,7 @@ export const AuthContextProvider = ({ children }) => {
       session,
       userRole,
       selectedRole,
-     
+      setSelectedRole,
       handleRoleSelect,
       signUpNewUsers,
       signInUser,

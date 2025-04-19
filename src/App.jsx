@@ -7,38 +7,47 @@ import { Login } from "./components/sections/Login";
 import { WalletProvider } from './context/WalletContext'
 import { Dashboard } from './pages/Dashboard'
 import { AuthContextProvider } from './context/supabaseAuthContext'
-import { FullTabs } from './components/ui/FullTabs'
+
 import { AuthPage } from './pages/AuthPage'
 import { ProfileLayout } from './components/ui/ProfileLayout'
 import { FarmerDashboard } from './pages/dashboards/FarmerDashboard'
 import { ConsumerDashboard } from './pages/dashboards/ConsumerDashboard'
 import { VerifierDashboard } from './pages/dashboards/VerifierDashboard'
 import { FinancialDashboard } from './pages/dashboards/FinancialDashboard'
+import { AdminDashboard } from './pages/dashboards/AdminDashboard'
+import { Web3AuthProvider } from './context/Web3AuthContext';
+
 
 function App() {
   return (
-    <AuthContextProvider>
-      <WalletProvider>
-        <Routes>
-          {/* Public routes with RootLayout */}
-          <Route element={<RootLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-          </Route>
+    <Web3AuthProvider>
+     
+        <AuthContextProvider>
+          <WalletProvider>
+            <Routes>
+              <Route element={<RootLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/about" element={<About />} />
+              </Route>
 
-          {/* Protected routes with ProfileLayout (after auth UI) */}
-          <Route element={<ProfileLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
-            <Route path="/consumer/dashboard" element={<ConsumerDashboard />} />
-            <Route path="/verifier/dashboard" element={<VerifierDashboard />} />
-            <Route path="/financial/dashboard" element={<FinancialDashboard />} />
-          </Route>
-        </Routes>
-      </WalletProvider>
-    </AuthContextProvider>
+              <Route element={<ProfileLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/farmer/dashboard" element={<FarmerDashboard />} />
+                <Route path="/consumer/dashboard" element={<ConsumerDashboard />} />
+                <Route path="/verifier/dashboard" element={<VerifierDashboard />} />
+                <Route path="/financial/dashboard" element={<FinancialDashboard />} />
+              </Route>
+                
+                
+               
+            </Routes>
+          </WalletProvider>
+        </AuthContextProvider>
+    
+    </Web3AuthProvider>
   )
 }
 

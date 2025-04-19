@@ -1,104 +1,98 @@
 import React from 'react'
-import { Wallet, Wheat, ShoppingBag, Award, Landmark } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
-import { Button } from '../ui/button'
-import { FullTabs } from '../ui/FullTabs'
-import { UserAuth } from '../../context/supabaseAuthContext'
-import { useWallet } from '../../context/WalletContext'
+import { Link } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { User, Shield, Wallet, Settings } from 'lucide-react'
 
 export const Login = () => {
-  const { handleRoleSelect, selectedRole } = UserAuth()
-  const { connectWallet, account, loading, error } = useWallet()
   const navigate = useNavigate()
-
-  const handleRoleClick = (roleId) => {
-    handleRoleSelect(roleId)
-    navigate('/auth')
-  }
 
   const roles = [
     {
-      id: 'farmer',
+      title: 'Admin',
+      description: 'Platform administrator with full system access',
+      icon: <Settings className="h-6 w-6 text-indigo-600" />,
+      path: '/auth?role=admin',
+      color: 'bg-indigo-50 text-indigo-700'
+    },
+    {
       title: 'Farmer',
-      description: 'List products, get verified, and secure funding',
-      icon: Wheat,
-      bgColor: 'bg-green-400',
-      hoverBorder: 'hover:border-green-300',
-      selectedBg: 'bg-green-50',
-      selectedBorder: 'border-green-500'
+      description: 'Register and manage farm products',
+      icon: <User className="h-6 w-6 text-green-600" />,
+      path: '/auth?role=farmer',
+      color: 'bg-green-50 text-green-700'
     },
     {
-      id: 'consumer',
       title: 'Consumer',
-      description: 'Find verified products',
-      icon: ShoppingBag,
-      bgColor: 'bg-blue-300',
-      hoverBorder: 'hover:border-blue-300',
-      selectedBg: 'bg-blue-50',
-      selectedBorder: 'border-blue-500'
+      description: 'Purchase and verify products',
+      icon: <Wallet className="h-6 w-6 text-blue-600" />,
+      path: '/auth?role=consumer',
+      color: 'bg-blue-50 text-blue-700'
     },
     {
-      id: 'verifier',
       title: 'Verifier',
-      description: 'Verify farms and produce',
-      icon: Award,
-      bgColor: 'bg-indigo-400',
-      hoverBorder: 'hover:border-indigo-400',
-      selectedBg: 'bg-indigo-50',
-      selectedBorder: 'border-indigo-500'
-    },
-    {
-      id: 'financial',
-      title: 'Financial',
-      description: 'Fund farmers and manage loans',
-      icon: Landmark,
-      bgColor: 'bg-stone-600',
-      hoverBorder: 'hover:border-stone-400',
-      selectedBg: 'bg-stone-50',
-      selectedBorder: 'border-stone-500'
+      description: 'Verify product information and ensure data accuracy',
+      icon: <Shield className="h-6 w-6 text-purple-600" />,
+      path: '/auth?role=verifier',
+      color: 'bg-purple-50 text-purple-700'
     }
   ]
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-white to-gray-100'>
-      <div className='container mx-auto px-4 py-16'>
-        <div className='max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden'>
-          {/* Header Section */}
-          <div className='relative bg-gradient-to-r from-blue-600 to-blue-800 px-8 py-12 text-white'>
-            <h1 className='text-4xl font-bold text-center mb-2'>
-              Welcome to AgriTrust
-            </h1>
-            <h2 className='text-blue-100 text-center'>
-              Transparent • Trusted • Traceable
-            </h2>
+    <div className="min-h-screen flex items-center bg-gradient-to-r from-green-50 to-blue-50">
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">
+                Select Your Role
+              </h2>
+              <p className="text-lg text-slate-600 text-center">
+                Choose your role to continue with the authentication process
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-2 gap-6">
+              {roles.map((role) => (
+                <motion.div
+                  key={role.title}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full"
+                >
+                  <Link
+                    to={role.path}
+                    className={`block w-full p-6 rounded-xl transition-all duration-200 ${role.color} hover:bg-${role.color.split(' ')[0].split('-')[0]}-100`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-white">
+                        {role.icon}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{role.title}</h3>
+                        <p className="text-sm text-slate-500 mt-1">{role.description}</p>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
-          <div className='p-8'>
-            <h2 className='text-xl font-semibold mb-4'>Select your role</h2>
-            <div className='grid grid-cols-2 gap-4'>
-              {roles.map((role) => {
-                const Icon = role.icon
-                return (
-                  <Card 
-                    key={role.id}
-                    onClick={() => handleRoleClick(role.id)}
-                    className="group cursor-pointer transition-all duration-300 hover:shadow-md hover:-translate-y-1"
-                  >
-                    <CardHeader className="flex flex-col items-center p-4">
-                      <div className={`${role.bgColor} w-14 h-14 rounded-full flex items-center justify-center mb-3 
-                        group-hover:scale-110 transition-transform duration-300`}>
-                        <Icon className="h-7 w-7 text-white group-hover:rotate-12 transition-all duration-300"/>
-                      </div>
-                      <CardTitle className="text-center mb-2">{role.title}</CardTitle>
-                      <CardDescription className="text-center text-sm">
-                        {role.description}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                )
-              })}
-            </div>
+          {/* Bottom Terms and Privacy */}
+          <div className="mt-12 text-center text-sm text-slate-500">
+            By selecting a role, you agree to our{' '}
+            <a href="/terms" className="text-purple-600 hover:text-purple-800">
+              Terms of Service
+            </a>{' '}
+            and{' '}
+            <a href="/privacy" className="text-purple-600 hover:text-purple-800">
+              Privacy Policy
+            </a>
           </div>
         </div>
       </div>

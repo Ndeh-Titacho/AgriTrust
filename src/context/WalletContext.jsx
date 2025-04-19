@@ -17,11 +17,11 @@ export const WalletProvider = ({ children }) => {
       const userData = {
         wallet_address: address,
         role: selectedRole,
-        status: status,
+        status: selectedRole === 'verifier' ? 'pending' : 'active',
         auth_type: 'web3',
         last_connected: new Date().toISOString()
       }
-      console.log('Status before storage:', status);
+      console.log('Status before storage:', userData.status);
 
       const { error } = await supabase
         .from('web3_users')
@@ -33,6 +33,7 @@ export const WalletProvider = ({ children }) => {
       if (error) throw error
       
       setUserRole(selectedRole)
+      setStatus(userData.status)
       console.log('Wallet info stored successfully')
       
     } catch (error) {
@@ -89,9 +90,13 @@ export const WalletProvider = ({ children }) => {
         setUserRole(existingUser.role)
         console.log(`Existing user found with role: ${existingUser.role}`)
         
+        // Only throw error if the wallet is registered with a different role
         if (selectedRole && existingUser.role !== selectedRole) {
           throw new Error(`This wallet is already registered as a ${existingUser.role}`)
         }
+
+        // If role matches or no role was specified, proceed to dashboard
+        return account
       } else {
         // New wallet - proceed with registration
         if (!selectedRole) {
