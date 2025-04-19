@@ -1,17 +1,48 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Wallet } from 'lucide-react'
-import { Card } from '../components/ui/card'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Wallet, User, Shield, Users, Settings } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardDescription } from '../components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { UserAuth } from '../context/supabaseAuthContext'
 import { useWallet } from '../context/WalletContext'
+import { motion } from 'framer-motion'
+
+const roleIcons = {
+  'farmer': <User className="h-5 w-5 text-green-500" />,
+  'consumer': <Users className="h-5 w-5 text-blue-500" />,
+  'verifier': <Shield className="h-5 w-5 text-purple-500" />,
+  'financial': <Wallet className="h-5 w-5 text-orange-500" />,
+  'admin': <Settings className="h-5 w-5 text-indigo-500" />
+}
+
+const roleColors = {
+  'farmer': 'bg-green-50 text-green-700',
+  'consumer': 'bg-blue-50 text-blue-700',
+  'verifier': 'bg-purple-50 text-purple-700',
+  'financial': 'bg-orange-50 text-orange-700',
+  'admin': 'bg-indigo-50 text-indigo-700'
+}
+
+const roleDescriptions = {
+  'farmer': 'Manage your farm products and track their journey through the supply chain',
+  'consumer': 'Verify product authenticity and track their journey from farm to table',
+  'verifier': 'Verify product information and ensure data accuracy in the supply chain',
+  'financial': 'Manage financial transactions and track payments in the supply chain',
+  'admin': 'Manage system settings and user permissions'
+}
 
 export const AuthPage = () => {
   const navigate = useNavigate()
-  const { selectedRole, signInUser, signUpNewUsers } = UserAuth()
+  const location = useLocation()
+  const { 
+    selectedRole, 
+    handleRoleSelect, 
+    signInUser, 
+    signUpNewUsers 
+  } = UserAuth()
   const { connectWallet, account, loading, error } = useWallet()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -19,217 +50,178 @@ export const AuthPage = () => {
   const [authError, setAuthError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  // Get role from URL parameters
+  const searchParams = new URLSearchParams(location.search)
+  const roleFromUrl = searchParams.get('role')
+
+  // Set the role when component mounts
+  useEffect(() => {
+    if (roleFromUrl) {
+      handleRoleSelect(roleFromUrl)
+    }
+  }, [roleFromUrl, handleRoleSelect])
+
+  const handleConnectWallet = async () => {
+    try {
+      setIsLoading(true)
+      const account = await connectWallet(selectedRole)
+      if (account) {
+        // Navigate to appropriate dashboard based on role
+        switch (selectedRole) {
+          case 'farmer':
+            navigate('/farmer/dashboard')
+            break
+          case 'consumer':
+            navigate('/consumer/dashboard')
+            break
+          case 'verifier':
+            navigate('/verifier/dashboard')
+            break
+          case 'financial':
+            navigate('/financial/dashboard')
+            break
+          case 'admin':
+            navigate('/admin/dashboard')
+            break
+          default:
+            navigate('/dashboard')
+        }
+      }
+    } catch (error) {
+      setAuthError(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   if (!selectedRole) {
     return (
-      <div className="min-h-screen flex items-center justify-center font-poppins">
-        <Card className="p-6">
-          <h2 className="text-xl font-semibold mb-4">No Role Selected</h2>
-          <p className="text-gray-600 mb-4">Please select a role first to continue</p>
-          <Button onClick={() => navigate('/')} className="w-full">
-            Go Back to Role Selection
-          </Button>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center font-poppins bg-gradient-to-br from-green-50 to-blue-50">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md p-8"
+        >
+          <Card className="p-8">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold text-slate-900 mb-4">Select Your Role</CardTitle>
+              <CardDescription className="text-slate-600 mb-6">
+                Choose your role to continue with the authentication process
+              </CardDescription>
+            </CardHeader>
+
+            <div className="space-y-4">
+              {Object.entries(roleIcons).map(([role, Icon]) => (
+                <motion.div
+                  key={role}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full"
+                >
+                  <Button
+                    variant="outline"
+                    className={`w-full justify-start ${roleColors[role]} hover:bg-${roleColors[role].split(' ')[0].split('-')[0]}-100`}
+                    onClick={() => handleRoleSelect(role)}
+                  >
+                    <div className="flex items-center gap-3">
+                      {Icon}
+                      <div>
+                        <span className="font-medium">{role.charAt(0).toUpperCase() + role.slice(1)}</span>
+                        <p className="text-sm text-slate-500 mt-1">
+                          {roleDescriptions[role]}
+                        </p>
+                      </div>
+                    </div>
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          </Card>
+        </motion.div>
       </div>
     )
   }
 
-  // Handle wallet authentication navigation
-  useEffect(() => {
-    if (account && selectedRole) {
-      switch (selectedRole) {
-        case 'farmer':
-          navigate('/farmer/dashboard')
-          break
-        case 'consumer':
-          navigate('/consumer/dashboard')
-          break
-        case 'verifier':
-          navigate('/verifier/dashboard')
-          break
-        case 'financial':
-          navigate('/financial/dashboard')
-          break
-        default:
-          navigate('/dashboard')
-      }
-    }
-  }, [account, selectedRole, navigate])
-
-  // Modify handleLogin to use role-based navigation
-  const handleLogin = async (e) => {
-    e.preventDefault()
-    setAuthError(null)
-    setIsLoading(true)
-    try {
-      const { success, error } = await signInUser(email, password)
-      if (!success) throw new Error(error)
-      
-      switch (selectedRole) {
-        case 'farmer':
-          navigate('/farmer/dashboard')
-          break
-        case 'consumer':
-          navigate('/consumer/dashboard')
-          break
-        case 'verifier':
-          navigate('/verifier/dashboard')
-          break
-        case 'financial':
-          navigate('/financial/dashboard')
-          break
-        default:
-          navigate('/dashboard')
-      }
-    } catch (error) {
-      setAuthError(error.message)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSignUp = async (e) => {
-    e.preventDefault()
-    setAuthError(null)
-    setIsLoading(true)
-    try {
-      const { success, error } = await signUpNewUsers(email, password, fullName)
-      if (!success) throw new Error(error)
-      navigate('/dashboard')
-    } catch (error) {
-      setAuthError(error.message)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 py-16">
-      <div className="container mx-auto px-4">
-        <Card className="max-w-md mx-auto overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-white">
-            <h1 className="text-2xl font-bold text-center">Welcome Back</h1>
-            <p className="text-blue-100 text-center mt-2">
-              Selected as: <span className="font-semibold capitalize">{selectedRole}</span>
-            </p>
-          </div>
+    <div className="min-h-screen flex items-center justify-center font-poppins bg-gradient-to-br from-blue-50 to-purple-50">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md p-8"
+      >
+        <Card className="p-8">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-slate-900 mb-4">Connect Your Wallet</CardTitle>
+            <CardDescription className="text-slate-600 mb-6">
+              Connect your wallet to continue as a {selectedRole.charAt(0).toUpperCase() + selectedRole.slice(1)}
+            </CardDescription>
+          </CardHeader>
 
-          <div className="p-6">
-            {/* Web3 Wallet Section */}
-            <div className="mb-8">
-              {!account ? (
-                <Button
-                  onClick={() => connectWallet(selectedRole)}
-                  disabled={loading}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-6 rounded-lg text-lg font-medium flex items-center justify-center gap-3 transition-all duration-200 hover:shadow-lg"
-                >
-                  <Wallet className="h-6 w-6" />
-                  {loading ? 'Connecting...' : 'Connect Web3 Wallet'}
-                </Button>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="text-slate-700">Wallet Address</Label>
+                <span className="text-sm text-slate-500">
+                  {account ? account.slice(0, 6) + '...' + account.slice(-4) : 'Not connected'}
+                </span>
+              </div>
+              <Input
+                placeholder="Your wallet address will be shown here"
+                value={account || ''}
+                readOnly
+                className="bg-gray-50 border-gray-200 focus:border-purple-500 focus:ring-purple-500"
+              />
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={handleConnectWallet}
+              disabled={isLoading || loading}
+              className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:from-purple-600 hover:to-blue-600"
+            >
+              {isLoading || loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Connecting...</span>
+                </span>
               ) : (
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800 font-medium text-center">Wallet Connected</p>
-                  <p className="font-mono text-sm text-center text-gray-600 mt-1">
-                    {account.slice(0, 6)}...{account.slice(-4)}
-                  </p>
-                </div>
+                <span className="flex items-center justify-center gap-2">
+                  <Wallet className="h-5 w-5 text-white" />
+                  <span>Connect Wallet</span>
+                </span>
               )}
-              {error && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm text-center">
-                  {error}
-                </div>
-              )}
-            </div>
+            </Button>
 
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t"></span>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 rounded-md p-3">
+                {error}
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with email</span>
+            )}
+
+            {authError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 rounded-md p-3">
+                {authError}
               </div>
+            )}
+
+            <div className="text-center text-sm text-slate-500">
+              By connecting your wallet, you agree to our{' '}
+              <a href="/terms" className="text-purple-600 hover:text-purple-800">
+                Terms of Service
+              </a>{' '}
+              and{' '}
+              <a href="/privacy" className="text-purple-600 hover:text-purple-800">
+                Privacy Policy
+              </a>
             </div>
-
-            {/* Email Authentication Tabs */}
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button variant="secondary" type="submit" className="w-full hover:bg-blue-100" disabled={isLoading}>
-                    {isLoading ? 'Logging in...' : 'Login'}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signupEmail">Email</Label>
-                    <Input
-                      id="signupEmail"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signupPassword">Password</Label>
-                    <Input
-                      id="signupPassword"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button varient="secondary" type="submit" className="w-full text-black hover:bg-blue-100" disabled={isLoading}>
-                    {isLoading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              {authError && (
-                <div className="mt-4 bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg text-sm text-center">
-                  {authError}
-                </div>
-              )}
-            </Tabs>
           </div>
         </Card>
-      </div>
+      </motion.div>
     </div>
   )
 }

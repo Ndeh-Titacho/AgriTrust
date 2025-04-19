@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link,useNavigate } from 'react-router-dom'
 import { Button } from '../../ui/button'
 import { Wallet, User, Menu, X, LogOut } from 'lucide-react'
 import { useState } from 'react'
@@ -22,10 +22,12 @@ import { Badge } from '@/components/ui/badge'
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { connectWallet, account, loading, userRole } = useWallet()
+  const { connectWallet, disconnectWallet, account, loading, userRole } = useWallet()
   const { session, signOut } = UserAuth()
   const [userInfo, setUserInfo] = useState({full_name: '', email: '', avatar: '', role: ''})
   const [selectedRole, setSelectedRole] = useState('')
+
+const navigate = useNavigate()
 
   useEffect(() => {
     if (session?.user) {
@@ -47,17 +49,26 @@ export const Navbar = () => {
   const renderGreeting = () => {  
     if(account) {
       return (
-      <span className='bg-gradient-to-r from-blue-100 to-green-100 rounded-full px-3 py-2 text-indigo-500'>Good day, { loading? '....' : `${account.slice(0,6)}...${account.slice(-4)}`}</span>
+      <span className='font-medium text-indigo-500'> <span className='font-normal text-gray-600'>Good day, </span> { loading? '....' : `${account.slice(0,6)}...${account.slice(-4)}`}</span>
   )
 }
     else if (session?.user) {
       return (
-        <span className="bg-gradient-to-r from-blue-100 to-green-100 rounded-full px-3 py-2 text-indigo-500">
-          Good day, { loading? '....' : `${userInfo.full_name}`}   
+        <span className=" font-medium text-indigo-500">
+         <span className='font-normal text-gray-600'>Good day, </span> { loading? '....' : `${userInfo.full_name}`}   
           </span>
       )
     }
     return null
+  }
+
+  const handleSignOut = async () => {
+    if (account) {
+      await disconnectWallet()
+      navigate('/')
+    } else {
+      await signOut()
+    }
   }
 
   const renderAuthSection = () => {
@@ -78,7 +89,7 @@ export const Navbar = () => {
           </Button>
           <Button 
             variant="ghost" 
-            onClick={signOut}
+            onClick={handleSignOut}
             className="text-red-500 hover:text-red-600 hover:bg-red-50"
           >
             <LogOut/>
@@ -148,7 +159,7 @@ export const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut} 
+            <DropdownMenuItem onClick={handleSignOut} 
             className="text-red-500">
              <LogOut className='text-red-500'/> Logout
 
@@ -160,7 +171,7 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="w-full fixed top-0 left-0 bg-white z-50 shadow-sm">
+    <header className="w-full fixed top-0 left-0 bg-white/80 backdrop-blur-md border-b border-gray-200/20 z-50">
       <div className="container mx-auto px-4 lg:px-8">
         <nav className={`${spacing} h-16 sm:h-[70px]`}>
           <div>
@@ -192,7 +203,7 @@ export const Navbar = () => {
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="lg:hidden w-3/5 fixed top-17 right-0 px-4 py-4 bg-white border-t shadow-lg h-screen">
+          <div className="lg:hidden w-3/5 fixed top-17 right-0 px-4 py-4 bg-white border-t border-gray-200/20 shadow-lg h-screen">
             <div className='flex flex-col gap-4 mt-4'>
               {account ? (
                 // Wallet auth mobile view
@@ -208,6 +219,7 @@ export const Navbar = () => {
                     <Wallet className="h-4 w-4 text-indigo-600" />
                     <span>{`${account.slice(0, 6)}...${account.slice(-4)}`}</span>
                   </Button>
+                 
                 </>
               ) : (
                 // Traditional auth mobile view - existing dropdown
@@ -269,7 +281,7 @@ export const Navbar = () => {
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut} 
+                    <DropdownMenuItem onClick={handleSignOut} 
                     className="text-red-500">
                      <LogOut className='text-red-500'/> Logout
 
@@ -292,8 +304,19 @@ export const Navbar = () => {
                         {item}
                       </Button>
                     </Link>
+                    
                   </li>
+                  
                 ))}
+                 {/* Add Logout Button */}
+                 <Button 
+                    variant="ghost" 
+                    onClick={handleSignOut}
+                    className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Disconnect Wallet</span>
+                  </Button>
               </ul>
             </div>
           </div>
