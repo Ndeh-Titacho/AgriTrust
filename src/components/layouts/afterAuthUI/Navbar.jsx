@@ -1,45 +1,32 @@
-import React, { useEffect } from 'react'
-import { Link,useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../../ui/button'
-import { Wallet, User, Menu, X, LogOut } from 'lucide-react'
-import { useState } from 'react'
+import { Wallet, X, LogOut, Menu } from 'lucide-react'
 import { useWallet } from '../../../context/WalletContext'
-import { UserAuth } from '../../../context/supabaseAuthContext'
 
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "../../ui/dropdown-menu"
+
 import { Avatar, AvatarImage, AvatarFallback } from '../../ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { Badge } from '../../ui/badge'
 
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { connectWallet, disconnectWallet, account, loading, userRole } = useWallet()
-  const { session, signOut } = UserAuth()
-  const [userInfo, setUserInfo] = useState({full_name: '', email: '', avatar: '', role: ''})
   const [selectedRole, setSelectedRole] = useState('')
-
-const navigate = useNavigate()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (session?.user) {
-      setUserInfo({
-        full_name: session.user.user_metadata.full_name || 'Anonymous',
-        email: session.user.email || 'No email',
-        avatar: session.user.user_metadata.avatar_url,
-        role: session.user.user_metadata.role || 'No role'
-      })
-      setSelectedRole(session.user.user_metadata.role || 'No role')
-    }
-  }, [session])
+    setSelectedRole(userRole || 'No role')
+  }, [userRole])
 
   // Define spacing and button classes
   const spacing = "flex items-center justify-between"
@@ -47,127 +34,39 @@ const navigate = useNavigate()
   const mobileButton = "text-left px-4 py-2 rounded-md"
 
   const renderGreeting = () => {  
-    if(account) {
+    if (account) {
       return (
-      <span className='font-medium text-indigo-500'> <span className='font-normal text-gray-600'>Good day, </span> { loading? '....' : `${account.slice(0,6)}...${account.slice(-4)}`}</span>
-  )
-}
-    else if (session?.user) {
-      return (
-        <span className=" font-medium text-indigo-500">
-         <span className='font-normal text-gray-600'>Good day, </span> { loading? '....' : `${userInfo.full_name}`}   
-          </span>
+        <span className='font-medium text-indigo-500'> 
+          <span className='font-normal text-gray-600'>Good day, </span> 
+          { loading ? '....' : `${account.slice(0,6)}...${account.slice(-4)}`}
+        </span>
       )
     }
     return null
   }
 
   const handleSignOut = async () => {
-    if (account) {
-      await disconnectWallet()
-      navigate('/')
-    } else {
-      await signOut()
-    }
+    await disconnectWallet()
+    navigate('/')
   }
 
-  const renderAuthSection = () => {
-    if (account) {
-      // Show simplified view for wallet auth
-      return (
-        <div className='hidden lg:flex items-center gap-4'>
-          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 rounded-full px-3 py-1 text-sm font-medium capitalize">
-            {userRole || 'No Role'} {/* Add fallback text */}
-          </Badge>
-          <Button 
-            variant="outline"
-            className="flex items-center gap-2"
-            disabled={loading}
-          >
-            <Wallet className="h-4 w-4 text-indigo-600" />
-            <span>{`${account.slice(0, 6)}...${account.slice(-4)}`}</span>
-          </Button>
-          <Button 
-            variant="ghost" 
-            onClick={handleSignOut}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-          >
-            <LogOut/>
-          </Button>
-        </div>
-      )
+  const getDashboardPath = () => {
+    if (!selectedRole || selectedRole === 'No role') return '/dashboard'
+    
+    switch (selectedRole.toLowerCase()) {
+      case 'admin':
+        return '/admin/dashboard'
+      case 'farmer':
+        return '/farmer/dashboard'
+      case 'consumer':
+        return '/consumer/dashboard'
+      case 'verifier':
+        return '/verifier/dashboard'
+      case 'financial':
+        return '/financial/dashboard'
+      default:
+        return '/dashboard'
     }
-
-    // Default view for traditional auth
-    return (
-      <div className='hidden lg:flex gap-2 md:gap-4'>
-        <DropdownMenu className='cursor-pointer'>
-          <DropdownMenuTrigger asChild>
-            <div className="p-[2px] rounded-full bg-gradient-to-r from-blue-600 to-green-600 hover:shadow-lg transition-all duration-300">
-              <Avatar className='w-12 h-12 cursor-pointer border-2 border-white'>
-                <AvatarImage 
-                  src={userInfo.avatar} 
-                  alt="User Avatar" 
-                  className="w-full h-full object-cover"
-                />
-                <AvatarFallback className="bg-gray-200 text-gray-500 text-lg">
-                  {userInfo.full_name.slice(0,2)}
-                </AvatarFallback>
-              </Avatar>
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuLabel className="py-2"> <h1>{userInfo.full_name}</h1>
-            <span className="text-sm text-gray-600"> </span>
-            <span className="text-sm text-gray-600">{userInfo.email}</span> 
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-              <DropdownMenuGroup className='py-2 px-2'> 
-                <span className="text-sm text-gray-600">Role: </span>
-              <Badge className="bg-green-100 text-green-500 rounded-full px-2 py-1 text-xs font-semibold mr-2"> {userInfo.role}</Badge>
-              </DropdownMenuGroup>
-           
-
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-             
-              <DropdownMenuItem>
-              <Button 
-          variant="outline"
-          className="flex items-center gap-2 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-all duration-200 w-full"
-          onClick={connectWallet}
-          disabled={loading}
-        >
-          <Wallet className="h-4 w-4 text-indigo-600" />
-          <span className="hidden sm:inline">
-            {loading 
-              ? 'Connecting...' 
-              : account 
-                ? `${account.slice(0, 6)}...${account.slice(-4)}` 
-                : 'Connect Wallet'
-            }
-          </span>
-          <span className="sm:hidden">
-            {loading 
-              ? '...' 
-              : account 
-                ? `${account.slice(0, 4)}...` 
-                : 'Connect'
-            }
-          </span>
-        </Button>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleSignOut} 
-            className="text-red-500">
-             <LogOut className='text-red-500'/> Logout
-
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    )
   }
 
   return (
@@ -177,20 +76,39 @@ const navigate = useNavigate()
           <div>
             <h1 className='font-bold text-2xl sm:text-3xl bg-gradient-to-r from-blue-600 to-green-600 text-transparent bg-clip-text'>AgriTrust</h1>
           </div>
-{/* Greeting Message */}
-{renderGreeting()}          
+          {/* Greeting Message */}
+          {renderGreeting()}          
           {/* Desktop Menu */}
           <div className='hidden lg:block'>
             <ul className='flex gap-2 md:gap-4'>
               <li><Link to="/" className={button}>Home</Link></li>
-              <li><Link to="/dashboard" className={button}>Dashboard</Link></li>
-              <li><Link to="/about" className={button}>About</Link></li>
+              <li><Link to={getDashboardPath()} className={button}>Dashboard</Link></li>
+              <li><Link to="/marketplace" className={button}>Marketplace</Link></li>
               <li><Link to="/contact" className={button}>Contact</Link></li>
             </ul>
           </div>
           
-          {/* Render auth section based on auth type */}
-          {renderAuthSection()}
+          {/* Auth Section */}
+          <div className='hidden lg:flex items-center gap-4'>
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 rounded-full px-3 py-1 text-sm font-medium capitalize">
+              {selectedRole || 'No Role'}
+            </Badge>
+            <Button 
+              variant="outline"
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
+              <Wallet className="h-4 w-4 text-indigo-600" />
+              <span>{`${account?.slice(0, 6)}...${account?.slice(-4)}`}</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={handleSignOut}
+              className="text-red-500 hover:text-red-600 hover:bg-red-50"
+            >
+              <LogOut/>
+            </Button>
+          </div>
 
           {/* Mobile Menu Button */}
           <button 
@@ -203,121 +121,12 @@ const navigate = useNavigate()
 
         {/* Mobile Menu */}
         {isOpen && (
-          <div className="lg:hidden w-3/5 fixed top-17 right-0 px-4 py-4 bg-white border-t border-gray-200/20 shadow-lg h-screen">
-            <div className='flex flex-col gap-4 mt-4'>
-              {account ? (
-                // Wallet auth mobile view
-                <>
-                  <Badge className="bg-green-100 text-green-700 w-fit px-3 py-1 text-sm font-medium">
-                    {userInfo.role}
-                  </Badge>
-                  <Button 
-                    variant="outline"
-                    className="flex items-center gap-2"
-                    disabled={loading}
-                  >
-                    <Wallet className="h-4 w-4 text-indigo-600" />
-                    <span>{`${account.slice(0, 6)}...${account.slice(-4)}`}</span>
-                  </Button>
-                 
-                </>
-              ) : (
-                // Traditional auth mobile view - existing dropdown
-                <DropdownMenu className='cursor-pointer'>
-                  <DropdownMenuTrigger asChild>
-                    <div className="p-[2px] rounded-full bg-gradient-to-r from-blue-600 to-green-600 hover:shadow-lg transition-all duration-300">
-                      <Avatar className='w-10 h-10 cursor-pointer border-2 border-white'>
-                        <AvatarImage 
-                          src={userInfo.avatar} 
-                          alt="User Avatar" 
-                          className="w-full h-full object-cover"
-                        />
-                        <AvatarFallback className="bg-gray-200 text-gray-500">
-                          {userInfo.full_name.slice(0,2)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
-                    <DropdownMenuLabel className="py-2"> <h1>{userInfo.full_name}</h1>
-                    <span className="text-sm text-gray-600"> </span>
-                    <span className="text-sm text-gray-600">{userInfo.email}</span> 
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                      <DropdownMenuGroup className='py-2 px-2'> 
-                        <span className="text-sm text-gray-600">Role: </span>
-                      <Badge className="bg-green-100 text-green-500  rounded-full px-2 py-1 text-xs font-semibold mr-2"> {userInfo.role}</Badge>
-                      </DropdownMenuGroup>
-                   
-
-                    <DropdownMenuSeparator />
-                    <DropdownMenuGroup>
-                     
-                      <DropdownMenuItem>
-                      <Button 
-                  variant="outline"
-                  className="flex items-center gap-2 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-all duration-200 w-full"
-                  onClick={connectWallet}
-                  disabled={loading}
-                >
-                  <Wallet className="h-4 w-4 text-indigo-600" />
-                  <span className="hidden sm:inline">
-                    {loading 
-                      ? 'Connecting...' 
-                      : account 
-                        ? `${account.slice(0, 6)}...${account.slice(-4)}` 
-                        : 'Connect Wallet'
-                    }
-                  </span>
-                  <span className="sm:hidden">
-                    {loading 
-                      ? '...' 
-                      : account 
-                        ? `${account.slice(0, 4)}...` 
-                        : 'Connect'
-                    }
-                  </span>
-                </Button>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} 
-                    className="text-red-500">
-                     <LogOut className='text-red-500'/> Logout
-
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-            <div className='px-4 py-4'>
-              <ul className='space-y-4'>
-                {['Home', 'Dashboard', 'About', 'Contact'].map((item) => (
-                  <li key={item}>
-                    <Link to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}>
-                      <Button 
-                        variant="ghost" 
-                        size="default" 
-                        className={`w-full justify-start hover:bg-indigo-50 hover:text-indigo-600 transition-all duration-200 ${mobileButton}`}
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {item}
-                      </Button>
-                    </Link>
-                    
-                  </li>
-                  
-                ))}
-                 {/* Add Logout Button */}
-                 <Button 
-                    variant="ghost" 
-                    onClick={handleSignOut}
-                    className="flex items-center gap-2 text-red-500 hover:text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Disconnect Wallet</span>
-                  </Button>
-              </ul>
+          <div className="lg:hidden mt-4 space-y-4">
+            <div className="flex flex-col gap-2">
+              <Link to="/" className={mobileButton}>Home</Link>
+              <Link to={getDashboardPath()} className={mobileButton}>Dashboard</Link>
+              <Link to="/marketplace" className={mobileButton}>Marketplace</Link>
+              <Link to="/contact" className={mobileButton}>Contact</Link>
             </div>
           </div>
         )}
