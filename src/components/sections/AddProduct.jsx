@@ -19,7 +19,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select"
-import { createNFTStorageClient } from '../../utils/nftStorage' // Import the NFT.Storage client
+import { supabase } from "../../supabase"
+import { toast } from "sonner"
+import { Toaster } from "sonner"
+import { ethers } from "ethers"
+import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
 
 export const AddProductModal = () => {
   const [open, setOpen] = React.useState(false)
@@ -31,21 +35,32 @@ export const AddProductModal = () => {
     inventory: '',
     productDescription: '',
     productImage: null,
+    farmingInputs: '',
   })
 
   const handleClose = () => {
     setOpen(false)
   }
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImagePreview(reader.result)
+      try {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setImagePreview(reader.result)
+          // Store the base64 data URL in state
+          setFormData({ ...formData, productImage: reader.result })
+          
+          // Show success toast
+          toast.success(`Image uploaded successfully (${file.name})`)
+        }
+        reader.readAsDataURL(file)
+      } catch (error) {
+        // Show error toast
+        toast.error('Failed to upload image')
+        console.error('Error uploading image:', error)
       }
-      reader.readAsDataURL(file)
-      setFormData({ ...formData, productImage: file })
     }
   }
 
@@ -62,23 +77,43 @@ export const AddProductModal = () => {
     e.preventDefault()
     
     try {
-      const nftStorage = createNFTStorageClient()
-      
-      // Create a proper File object
-      const imageFile = new File(
-        [formData.productImage], 
-        formData.productImage.name, 
-        { type: formData.productImage.type }
-      )
-      
-      // Upload to NFT.Storage
-      const metadata = await nftStorage.store({
-        name: formData.productName,
-        description: formData.productDescription,
-        image: imageFile
-      })
-      
-      // Insert into Supabase
+      // Show loading toast
+      toast.loading('Uploading product...')
+
+      //upload to blockchain
+      const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
+
+      const farmingInputsArray = formData.farmingInputs.split(',').map((s) => s.trim());
+
+      const tx = await contract.listProduct(
+        formData.productName,
+        Number(formData.inventory),
+        formData.productDescription,
+        Number(formData.productPrice),
+        farmingInputsArray
+      );
+
+      const product = await contract.getProduct(1);
+      console.log(product)
+
+      const receipt = await tx.wait();
+      console.log("Product listed! TX:", receipt.transactionHash);
+     // Filter for a specific event by name
+const productListedEvents = receipt.events?.filter(
+  (x) => x.event === "ProductListed"
+);
+
+if (productListedEvents && productListedEvents.length > 0) {
+  const event = productListedEvents[0];
+  const pid = event.args.pid.toString();
+  const price = event.args.price.toString();
+  console.log("ProductListed event args:", ...event.args, pid, price);
+}
+     
+      //upload to supabase
       const { error } = await supabase
         .from('products')
         .insert({
@@ -87,17 +122,33 @@ export const AddProductModal = () => {
           price: parseFloat(formData.productPrice),
           inventory: parseInt(formData.inventory),
           description: formData.productDescription,
-          image_url: `https://ipfs.io/ipfs/${metadata.data.image.href.split('//')[1]}`,
-          nft_metadata_url: metadata.url
+          farmingInputs: formData.farmingInputs,
+          image_url: formData.productImage,
+          created_at: new Date().toISOString()
         })
       
       if (error) throw error
       
-      alert('Product added successfully!')
+      // Show success toast
+      toast.success("Product uploaded successfully!")
+      
+      // Reset form and close modal
+      setFormData({
+        productName: '',
+        productType: '',
+        productPrice: '',
+        inventory: '',
+        productDescription: '',
+        farmingInputs: '',
+        productImage: null,
+      })
+      setImagePreview(null)
       setOpen(false)
+      
     } catch (error) {
-      console.error('Error:', error)
-      alert('Failed to add product: ' + error.message)
+      // Show error toast
+      toast.error(error.message || "Failed to upload product")
+      console.error('Error uploading product:', error)
     }
   }
 
@@ -178,6 +229,19 @@ export const AddProductModal = () => {
                     value={formData.inventory}
                     onChange={handleInputChange}
                   />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="farmingInputs" className="text-sm font-medium">Farming Inputs</label>
+                  <textarea
+                    id="farmingInputs"
+                    className="w-full rounded-md border border-gray-300 p-2"
+                    placeholder="Enter farming inputs, separated by commas"
+                    value={formData.farmingInputs}
+                    onChange={handleInputChange}
+                    rows={3}
+                    required
+                  />
+                  
                 </div>
               </div>
             </div>

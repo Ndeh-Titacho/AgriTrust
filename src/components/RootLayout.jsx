@@ -2,6 +2,7 @@ import React from 'react'
 import { Navbar } from './layouts/Navbar'
 import { Footer } from './layouts/Footer'
 import { Outlet } from 'react-router-dom'
+import { Toaster } from 'sonner'
 
 export const RootLayout = () => {
   return (
@@ -11,6 +12,7 @@ export const RootLayout = () => {
            <Outlet/>
         </div>
         <Footer/>
+        <Toaster position="top-right" />
     </div>
   )
 }

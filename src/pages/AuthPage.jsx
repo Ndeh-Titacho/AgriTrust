@@ -84,7 +84,7 @@ export const AuthPage = () => {
             navigate('/admin/dashboard')
             break
           default:
-            navigate('/dashboard')
+            navigate('/marketplace')
         }
       }
     } catch (error) {

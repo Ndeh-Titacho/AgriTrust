@@ -7,6 +7,7 @@ import { Login } from "./components/sections/Login";
 import { WalletProvider } from './context/WalletContext'
 import { Dashboard } from './pages/Dashboard'
 import { AuthContextProvider } from './context/supabaseAuthContext'
+import { Marketplace } from './pages/Marketplace'
 
 import { AuthPage } from './pages/AuthPage'
 import { ProfileLayout } from './components/ui/ProfileLayout'
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/marketplace" element={<Marketplace />} />
               </Route>
 
               <Route element={<ProfileLayout />}>
