@@ -9,8 +9,15 @@ import {
   } from "../ui/card"
   import { Wheat, ShieldCheck, ArrowRightLeft   } from 'lucide-react'
   import { Table } from '../sections/Table'
+  import { useProducts } from '../../context/ProductContext';
 
 export const Overview = () => {
+
+    const { totalProducts, isLoading, error } = useProducts();
+
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+
   return (
     <div >
         <div className='grid md:grid-cols-3 gap-4'>
@@ -27,7 +34,7 @@ export const Overview = () => {
             </CardTitle>
             </CardHeader>
             <CardContent className="flex justify-around  w-48">
-                <h1 className='text-4xl font-semibold'>3</h1>
+                <h1 className='text-4xl font-semibold'>{totalProducts}</h1>
             </CardContent>
             <CardFooter>
                 <h1 className='text-gray-600'>2 active listings</h1>

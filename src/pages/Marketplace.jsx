@@ -14,6 +14,7 @@ import { Button } from '../components/ui/button'
 import { supabase } from '../supabase'
 import { toast } from "sonner"
 import { Toaster } from "sonner"
+import { motion } from 'framer-motion';
 
 export const Marketplace = () => {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -21,6 +22,7 @@ export const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     fetchProducts()
@@ -73,8 +75,12 @@ export const Marketplace = () => {
     return `/images/${imageData}`
   }
 
+  const toggleDropdown = (productId) => {
+    setOpenDropdown(prev => prev === productId ? null : productId);
+  };
+
   return (
-    <div className='font-poppins'>
+    <div className='font-poppins mt-15'>
       <Toaster />
       
       <header className='flex flex-col justify-start items-start'>
@@ -142,20 +148,72 @@ export const Marketplace = () => {
                       <h1>{product.price} XAF</h1>
                     </div>
                     <div className='flex justify-between items-center'>
-                      <span className='text-gray-500'>
+                      <span className='flex gap-1 items-center'>
+                        <Tag size={14}/>
+                        <span className='text-gray-500'>
                         {product.type}
                       </span>
-                      <span className='text-gray-500'>
-                        {product.inventory} in stock
                       </span>
+                      
+                      <span className='text-gray-500'>
+                        per unit
+                      </span>
+                    
                     </div>
-                    <p className='mt-2 text-gray-600'>{product.description}</p>
+                    <div className='flex justify-between items-center'>
+                      <span className='flex gap-1 items-center'>
+                        <Wheat size={14} className='text-green-600'/>
+                        <span className='text-gray-500'>
+                          {product.inventory} in stock
+                        </span>
+                      </span>
+                      
+                    </div>
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ 
+                        height: openDropdown === product.id ? 'auto' : 0,
+                        opacity: openDropdown === product.id ? 1 : 0
+                      }}
+                      transition={{ 
+                        duration: 0.3,
+                        ease: "easeInOut"
+                      }}
+                      className='overflow-hidden'
+                    >
+                      <div className='flex flex-col items-start items-center mt-4'>
+                      <p className='text-xl text-black font-medium '>Product Details</p>
+                      <p className='mt-1 text-gray-600'>{product.description}</p>
+                      </div>
+
+                      <div className='flex justify-between items-center mx-0'>
+                        <span className='flex items-center gap-1 mt-4 truncate'>
+                          <CircleAlert size={14} className='text-blue-300'/>
+                          <span className='text-gray-500'> Blockchain verified origin</span>
+                        </span>
+                        <span>
+                          <Button variant="link" className="text-green-700 pt-1">View Certificate</Button>
+                        </span>
+                      </div>
+                      
+                    </motion.div>
                   </CardDescription>
                 </CardContent>
                 <CardFooter>
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    Add to Cart
-                  </Button>
+                  <div className='flex justify-between gap-30 items-center'>
+                    <Button 
+                      variant="link" 
+                      onClick={() => toggleDropdown(product.id)}
+                    >
+                      {openDropdown === product.id ? 'Hide details' : 'Show more'}
+                    </Button>
+                    <Button 
+                      variant="secondary" 
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      Purchase
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))

@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table"
+} from "../ui/table";
 import {
   Card,
   CardContent,
@@ -16,102 +16,61 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card"
-import { Wheat,Plus } from 'lucide-react'
-import { Button } from '../ui/button'
-
-
+} from "../ui/card";
+import { Wheat, Plus } from 'lucide-react';
+import { Button } from '../ui/button';
+import { useProducts } from '../../context/ProductContext';
 
 export const Products = () => {
+  const { products, isLoading, error } = useProducts();
 
-  
-  const invoices = [
-    {
-      invoice: "INV001",
-      paymentStatus: "Paid",
-      totalAmount: "$250.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV002",
-      paymentStatus: "Pending",
-      totalAmount: "$150.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV003",
-      paymentStatus: "Unpaid",
-      totalAmount: "$350.00",
-      paymentMethod: "Bank Transfer",
-    },
-    {
-      invoice: "INV004",
-      paymentStatus: "Paid",
-      totalAmount: "$450.00",
-      paymentMethod: "Credit Card",
-    },
-    {
-      invoice: "INV005",
-      paymentStatus: "Paid",
-      totalAmount: "$550.00",
-      paymentMethod: "PayPal",
-    },
-    {
-      invoice: "INV006",
-      paymentStatus: "Pending",
-      totalAmount: "$200.00",
-      paymentMethod: "Bank Transfer",
-    }
-  ]
-  
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+
   return (
     <div>
       <Card>
         <CardHeader>
           <CardTitle className="flex justify-between">
-              <span className='flex gap-2 text-xl font-medium items-center'>
-                            <Wheat size={20} className='text-green-600'/> Products
-                            </span>
-                            <div>
-                            <Button variant="secondary" className="bg-green-600 text-white hover:bg-green-500"><Plus/> New Product</Button>
-                            </div>
+            <span className='flex gap-2 text-xl font-medium items-center'>
+              <Wheat size={20} className='text-green-600'/> Products
+            </span>
+            <div>
+              <Button variant="secondary" className="bg-green-600 text-white hover:bg-green-500"><Plus/> New Product</Button>
+            </div>
           </CardTitle>
         </CardHeader>
 
-      <div>
-      
-      <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
-
-
-</div>
-    </Card>
-  
+        <CardContent>
+          <Table>
+            <TableCaption>A list of your products.</TableCaption>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Name</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Price (XAF)</TableHead>
+                <TableHead className="text-right">Inventory</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell className="font-medium">{product.name}</TableCell>
+                  <TableCell>{product.type}</TableCell>
+                  <TableCell>{product.price} XAF</TableCell>
+                  <TableCell className="text-right">{product.inventory}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={3}>Total Products</TableCell>
+                <TableCell className="text-right">{products.length}</TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -7,6 +7,8 @@ import { Overview } from '../../components/sections/Overview'
 import { Products } from '../../components/sections/Products'
 import { Verifications } from '../../components/sections/Verifications'
 import { AddProductModal } from '../../components/sections/AddProduct'
+import { RequestCrowdfunding } from '../../components/sections/RequestCrowdfunding'
+import { ProductProvider } from '../../context/ProductContext';
 
 export const FarmerDashboard = () =>  {
   const { account } = useWallet()
@@ -32,7 +34,8 @@ export const FarmerDashboard = () =>  {
     }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <ProductProvider>
+      <div className="min-h-screen bg-gray-50 p-8">
      
 
       <div className="max-w-7xl mx-auto font-poppins">
@@ -41,7 +44,8 @@ export const FarmerDashboard = () =>  {
         <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
         <span className='text-gray-600 text-left'>Manage your farm, products and certifications.</span>
         <div className='flex gap-2 pt-4 md:justify-end'>
-          <Button variant="outline"><PiggyBank/> Request Funding </Button>
+          <RequestCrowdfunding />
+        
           <AddProductModal /> {/* Replace the old button with this component */}
         </div>
         </div>
@@ -89,5 +93,6 @@ export const FarmerDashboard = () =>  {
       
       </div>
     </div>
+    </ProductProvider>
   )
 }
