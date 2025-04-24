@@ -59,12 +59,12 @@ export const RequestCrowdfunding = () => {
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
 
-      const amount = formData.amount.split(',').map((s) => s.trim());
+     
 
       const tx = await contract.startCrowdfundingCampaign(
         formData.description,
         Number(formData.amount),
-        Number(amount),
+        Number(formData.amount),
         
         
       );
@@ -86,18 +86,21 @@ const crowdfundingEvents = receipt.events?.filter(
 console.log("CrowdfundingStarted events:", crowdfundingEvents);
 
 // If you want to log the arguments of the first event
+let cid = null; // Declare cid in the outer scope
+
 if (crowdfundingEvents && crowdfundingEvents.length > 0) {
   const event = crowdfundingEvents[0];
   console.log("Event args:", event.args);
-  // Example: access specific args if you know their names or positions
   console.log("cid:", event.args.cid.toString());
-   console.log("goal:", event.args._goal.toString());
+  console.log("goal:", event.args.goal.toString());
+  cid = event.args.cid.toString();
 }
 
       const { error } = await supabase
         .from('crowdfunding_requests')
         .insert([
           {
+            cid: cid,
             title: formData.title,
             target_amount:parseFloat(formData.amount),
             duration_days: parseInt(formData.duration),
