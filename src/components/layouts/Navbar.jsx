@@ -4,6 +4,7 @@ import { Wallet, User, Menu, X } from 'lucide-react';
 import { Button } from "../../components/ui/button"
 import { useState } from 'react';
 import { useWallet } from '../../context/WalletContext'
+import { toast } from 'sonner'
 
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,12 @@ export const Navbar = () => {
             window.location.href = '/login';
             return;
         }
-        await connectWallet();
+        try {
+            await connectWallet();
+            toast.success('Wallet connected successfully!');
+        } catch (error) {
+            toast.error(error.message || 'Failed to connect wallet');
+        }
     };
 
     return (

@@ -3,6 +3,7 @@ import { Card } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
 import { Users, ChartBar, Database, Settings, ChartPie } from 'lucide-react'
 import { supabase } from '../../supabase'
+import { toast } from 'sonner'
 
 export const AdminDashboard = () => {
   const [pendingVerifiers, setPendingVerifiers] = useState([])
@@ -25,6 +26,7 @@ export const AdminDashboard = () => {
       setPendingVerifiers(data || [])
     } catch (error) {
       console.error('Error fetching pending verifiers:', error)
+      toast.error(error.message || 'Failed to fetch pending verifiers')
     } finally {
       setLoading(false)
     }
@@ -38,11 +40,12 @@ export const AdminDashboard = () => {
         .eq('id', verifierId)
 
       if (error) throw error
-      
+      toast.success('Verifier approved successfully!')
       // Refresh the list
       fetchPendingVerifiers()
     } catch (error) {
       console.error('Error approving verifier:', error)
+      toast.error(error.message || 'Failed to approve verifier')
     }
   }
 

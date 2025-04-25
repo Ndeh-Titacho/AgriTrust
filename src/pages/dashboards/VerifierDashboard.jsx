@@ -4,6 +4,8 @@ import { Button } from '../../components/ui/button'
 import { AlertTriangle, CheckCircle2, Clock, FileText, ShieldCheck, ClipboardList, CheckCircle } from 'lucide-react'
 import { useWallet } from '../../context/WalletContext'
 import { supabase } from '../../supabase'
+import { PendingVerifications } from '@/components/sections/PendingVerifications'
+import { CompletedVerifications } from '@/components/sections/CompletedVerifications'
 
 export const VerifierDashboard = () => {
   const { account, status } = useWallet()
@@ -11,6 +13,7 @@ export const VerifierDashboard = () => {
   const [loading, setLoading] = useState(true)
   const [productsToVerify, setProductsToVerify] = useState([])
   const [verificationHistory, setVerificationHistory] = useState([])
+  const [activeComponent, setActiveComponent] = useState('')
 
   useEffect(() => {
     fetchUserStatus()
@@ -40,16 +43,19 @@ export const VerifierDashboard = () => {
 
   const fetchProductsToVerify = async () => {
     try {
+      setLoading(true)
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .eq('status', 'pending')
+        .eq('verification_status', 'pending')
         .limit(5)
 
       if (error) throw error
       setProductsToVerify(data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -74,7 +80,7 @@ export const VerifierDashboard = () => {
       const { error } = await supabase
         .from('products')
         .update({
-          status: 'verified',
+          verification_status: 'verified',
           verified_by: account,
           verified_at: new Date().toISOString()
         })
@@ -99,22 +105,32 @@ export const VerifierDashboard = () => {
     }
   }
 
+  const mobileButton = "text-left px-4 py-2 rounded-md"
+
   if (loading) {
     return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Verifier Dashboard</h1>
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
-          <div className="h-4 bg-gray-200 rounded w-1/3" />
-        </div>
-      </div>
+      <div className='flex flex-col items-start justify-start'>
+             <h1 className="text-3xl font-bold">Verifier Portal </h1>
+             <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
+             <span className='text-gray-600 text-left'>Evaluate farms and issue blockchain certificates</span>
+            
+             </div>
+             </div>
     )
   }
 
   if (userStatus === 'pending') {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Verifier Dashboard</h1>
+          <div className='flex flex-col items-start justify-start'>
+             <h1 className="text-3xl font-bold">Verifier Portal</h1>
+             <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
+             <span className='text-gray-600 text-left'>Evaluate farms and issue blockchain certificates</span>
+            
+             </div>
+             </div>
+
+        
 
         <Card className="p-6">
           <div className="flex items-center gap-4 mb-4">
@@ -159,81 +175,46 @@ export const VerifierDashboard = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Verifier Dashboard</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {/* Products to Verify */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Products to Verify</h3>
-            <div className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-600">{productsToVerify.length} pending</span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {productsToVerify.map((product) => (
-              <div key={product.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                <div>
-                  <h4 className="font-medium">{product.name}</h4>
-                  <p className="text-sm text-gray-500">{product.description?.slice(0, 50)}...</p>
-                </div>
-                <Button
-                  onClick={() => handleVerifyProduct(product.id)}
-                  variant="outline"
-                  size="sm"
-                  className="bg-green-500 text-white hover:bg-green-600"
-                >
-                  Verify
-                </Button>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Verification History */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Verification History</h3>
-            <div className="flex items-center gap-2">
-              <ClipboardList className="h-5 w-5 text-gray-500" />
-              <span className="text-gray-600">{verificationHistory.length} verified</span>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {verificationHistory.map((verification) => (
-              <div key={verification.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                <div>
-                  <h4 className="font-medium">{verification.product_name}</h4>
-                  <p className="text-sm text-gray-500">
-                    Verified on {new Date(verification.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-                <CheckCircle className="h-5 w-5 text-green-500" />
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-          <div className="space-y-4">
-            <Button className="w-full"
-             variant="outline">
-             
-              <ShieldCheck className="h-5 w-5 mr-2" />
-              Verify Multiple Products
+        <div className='flex flex-col items-start justify-start'>
+             <h1 className="text-3xl font-bold">Verifier Portal</h1>
+             <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
+             <span className='text-gray-600 text-left'>Evaluate farms and issue blockchain certificates</span>
+            
+             </div>
+             </div>
+      {/* Navigation Section */}
+      <nav className="nav mt-8">
+        <ul className="flex flex-col sm:flex-row gap-3 w-full">
+          <li className="flex flex-row w-full gap-2">
+            <Button 
+              variant="ghost" 
+              size="default" 
+              className={`flex-1 justify-center sm:justify-start rounded-lg font-semibold border border-indigo-100 bg-white hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 ${activeComponent === 'Pending' ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : ''} ${mobileButton}`}
+              onClick={() => setActiveComponent("Pending")}
+            >
+              Pending Verifications
             </Button>
-            <Button variant="outline" className="w-full">
-              <ClipboardList className="h-5 w-5 mr-2" />
-              View All History
+            <Button 
+              variant="ghost" 
+              size="default" 
+              className={`flex-1 justify-center sm:justify-start rounded-lg font-semibold border border-indigo-100 bg-white hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-200 ${activeComponent === 'Completed' ? 'bg-indigo-50 text-indigo-700 border-indigo-300' : ''} ${mobileButton}`}
+              onClick={() => setActiveComponent("Completed")}
+            >
+              Completed Verifications
             </Button>
-          </div>
-        </Card>
+          </li>
+        </ul>
+      </nav>
+
+      <div className="mt-4">
+        {activeComponent === 'Pending' && (
+          <PendingVerifications />
+        )}
+        {activeComponent === 'Completed' && (
+          <CompletedVerifications />
+        )}
+        {/* You can add more components here for other tabs */}
       </div>
     </div>
-  )
+  );
 }
