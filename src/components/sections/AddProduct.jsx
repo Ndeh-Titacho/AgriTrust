@@ -101,6 +101,8 @@ export const AddProductModal = () => {
 
       const receipt = await tx.wait();
       console.log("Product listed! TX:", receipt.transactionHash);
+
+      let pid = null
      // Filter for a specific event by name
 const productListedEvents = receipt.events?.filter(
   (x) => x.event === "ProductListed"
@@ -108,7 +110,7 @@ const productListedEvents = receipt.events?.filter(
 
 if (productListedEvents && productListedEvents.length > 0) {
   const event = productListedEvents[0];
-  const pid = event.args.pid.toString();
+ pid = event.args.pid.toString();
   const price = event.args.price.toString();
   console.log("ProductListed event args:", ...event.args, pid, price);
 }
@@ -117,6 +119,7 @@ if (productListedEvents && productListedEvents.length > 0) {
       const { error } = await supabase
         .from('products')
         .insert({
+          pid: pid,
           name: formData.productName,
           type: formData.productType,
           price: parseFloat(formData.productPrice),
