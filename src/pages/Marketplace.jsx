@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { Toaster } from "sonner"
 import { motion } from 'framer-motion';
 import { SupportCrowdfund } from '../components/sections/SupportCrowdfund'
+import { PurchaseProduct } from '../components/sections/PurchaseProduct'
 
 
 export const Marketplace = () => {
@@ -156,6 +157,9 @@ export const Marketplace = () => {
               ) : (
                 filteredProducts.map((product) => (
                   <Card key={product.id}>
+                    <div>
+    <span className="font-semibold">Product ID:</span> {product.pid || 'N/A'}
+  </div>
                     <CardHeader className="relative p-0">
                       <img 
                         src={getImageSrc(product.image_url)}
@@ -240,12 +244,7 @@ export const Marketplace = () => {
                         >
                           {openDropdown === product.id ? 'Hide details' : 'Show more'}
                         </Button>
-                        <Button 
-                          variant="secondary" 
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          Purchase
-                        </Button>
+                      <PurchaseProduct product={product} />
                       </div>
                     </CardFooter>
                   </Card>

@@ -33,10 +33,13 @@ export const SupportCrowdfund = ({ open, onOpenChange, onSupport }) => {
             alert('Campaign ID (cid) is missing.');
             return;
           }
-          // Call the smart contract function
-          const tx = await contract.contributeToCampaign(cid);
+          //convert amount from fcfa to wei
+          const fcfaAmount = amount
+          const weiAmount = await contract.fcfaToWei(fcfaAmount)
+          // Call the crowdfunding contract function
+          const tx = await contract.contributeToCampaign(cid, {value: weiAmount});
           await tx.wait(); // Wait for transaction confirmation
-          console.log("Contribution successful! TX:", Receipt.transactionHash)
+          console.log("Contribution successful! TX:", receipt.transactionHash)
           alert('Contribution successful!');
     
           // Log all events

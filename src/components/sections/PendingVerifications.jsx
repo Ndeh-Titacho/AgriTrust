@@ -3,6 +3,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Button } from '../../components/ui/button';
 import { Progress } from '../../components/ui/progress';
 import { supabase } from '../../supabase';
+import { ContinueVerification } from './ContinueVerification';
 
 export const PendingVerifications = () => {
   const [pendingProducts, setPendingProducts] = useState([]);
@@ -112,9 +113,7 @@ export const PendingVerifications = () => {
               <Button size="sm" variant="outline" className="w-full  hover:bg-blue-400 hover:text-white font-medium rounded-full shadow">
                 View Details
               </Button>
-              <Button size="sm" className="w-full bg-green-600 hover:bg-green-700 text-white font-medium rounded-full shadow">
-                Continue Verification
-              </Button>
+             <ContinueVerification/>
             </CardFooter>
           </Card>
         );
