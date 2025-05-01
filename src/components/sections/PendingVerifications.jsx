@@ -74,6 +74,9 @@ export const PendingVerifications = () => {
                   <img src={product.image_data} alt="Product" className="w-full h-24 object-cover rounded border border-gray-200" />
                 </div>
               )}
+              <div>
+                <h4>Pid: {product.pid}</h4>
+              </div>
               {product.description && (
                 <div>
                   <h4 className="text-xs font-medium mb-0.5 text-gray-700">Description</h4>

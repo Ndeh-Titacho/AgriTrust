@@ -4,6 +4,8 @@ import { Button } from '../../components/ui/button'
 import { Users, ChartBar, Database, Settings, ChartPie } from 'lucide-react'
 import { supabase } from '../../supabase'
 import { toast } from 'sonner'
+import { ethers } from "ethers"
+import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
 
 export const AdminDashboard = () => {
   const [pendingVerifiers, setPendingVerifiers] = useState([])
@@ -26,7 +28,7 @@ export const AdminDashboard = () => {
       setPendingVerifiers(data || [])
     } catch (error) {
       console.error('Error fetching pending verifiers:', error)
-      toast.error(error.message || 'Failed to fetch pending verifiers')
+      alert(error.message || 'Failed to fetch pending verifiers')
     } finally {
       setLoading(false)
     }
@@ -34,18 +36,59 @@ export const AdminDashboard = () => {
 
   const approveVerifier = async (verifierId) => {
     try {
+  // Find the selected verifier by their ID
+  const verifier = pendingVerifiers.find((verifier) => verifier.id === verifierId);
+  if (!verifier) {
+    throw new Error('Verifier not found');
+  }
+
+  // Log the wallet address to verify it is correct
+  console.log("Wallet Address:", verifier.wallet_address);
+
+  // Ensure the wallet address is valid
+  if (!ethers.utils.isAddress(verifier.wallet_address)) {
+    throw new Error("Invalid Ethereum address");
+  }
+
+  // Upload to blockchain
+  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Example contract address
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const signer = await provider.getSigner();
+  const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
+
+  const account = verifier.wallet_address; // Correct address of the verifier
+  const tx = await contract.addVerifier(account);
+
+  const receipt = await tx.wait();
+  console.log("Verifier added! TX:", receipt.transactionHash);
+
+            
+               
+                 // Filter for a specific event by name
+            const VerifierAddedEvents = receipt.events?.filter(
+              (x) => x.event === "VerifierAdded"
+            );
+            
+            if (VerifierAddedEvents && VerifierAddedEvents.length > 0) {
+              const event = VerifierAddedEvents[0];
+              const verifier = event.args.verifier.toString();
+              console.log("VerifierAdded event args:", ...event.args, verifier);
+              alert("Verifier added successfully!", verifier)
+            }
+
+
       const { error } = await supabase
         .from('web3_users')
         .update({ status: 'active' })
         .eq('id', verifierId)
 
       if (error) throw error
-      toast.success('Verifier approved successfully!')
+      alert('Verifier approved successfully!')
       // Refresh the list
       fetchPendingVerifiers()
     } catch (error) {
       console.error('Error approving verifier:', error)
-      toast.error(error.message || 'Failed to approve verifier')
+      alert(error.message || 'Failed to approve verifier')
     }
   }
 
@@ -132,19 +175,30 @@ export const AdminDashboard = () => {
               {pendingVerifiers.map((verifier) => (
                 <div key={verifier.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
                   <div className="flex items-center gap-3">
-                    <span className="text-gray-600">{verifier.wallet_address.slice(0, 6)}...{verifier.wallet_address.slice(-4)}</span>
+                    <span className="text-gray-600">{verifier.wallet_address.slice(0, 6)}...{verifier.wallet_address.slice(-15)}</span>
                     <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
                       Pending
                     </span>
                   </div>
+                  <div className='flex gap-2'>
                   <Button
                     onClick={() => approveVerifier(verifier.id)}
                     variant="outline"
                     size="sm"
-                    className="bg-green-500 text-white hover:bg-green-600"
+                    className="bg-green-600 text-white hover:text-white hover:bg-green-700"
                   >
                     Approve
                   </Button>
+                  <Button
+                    onClick={() => rejectVerifier(verifier.id)}
+                    variant="outline"
+                    size="sm"
+                    className="bg-red-100 text-red-400 hover:text-red-500 hover:bg-red-200 border-red-500"
+                  >
+                    Reject
+                  </Button>
+                  </div>
+                  
                 </div>
               ))}
               {pendingVerifiers.length === 0 && (
