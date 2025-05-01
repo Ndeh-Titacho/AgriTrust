@@ -7,6 +7,7 @@ import { supabase } from '../../supabase'
 import { PendingVerifications } from '@/components/sections/PendingVerifications'
 import { CompletedVerifications } from '@/components/sections/CompletedVerifications'
 
+
 export const VerifierDashboard = () => {
   const { account, status } = useWallet()
   const [userStatus, setUserStatus] = useState(null)

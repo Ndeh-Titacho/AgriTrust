@@ -199,11 +199,11 @@ if (productListedEvents && productListedEvents.length > 0) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Fruits</SelectLabel>
-                      <SelectItem value="apple">Apple</SelectItem>
-                      <SelectItem value="banana">Banana</SelectItem>
-                      <SelectItem value="blueberry">Blueberry</SelectItem>
-                      <SelectItem value="grapes">Grapes</SelectItem>
-                      <SelectItem value="pineapple">Pineapple</SelectItem>
+                      <SelectItem value="Fruit">Apple</SelectItem>
+                      <SelectItem value="Vegetable">Banana</SelectItem>
+                      <SelectItem value="Grain">Blueberry</SelectItem>
+                      <SelectItem value="Dairy">Grapes</SelectItem>
+                      <SelectItem value="Specialty">Pineapple</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>

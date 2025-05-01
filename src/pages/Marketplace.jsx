@@ -95,7 +95,7 @@ export const Marketplace = () => {
 
   
   return (
-    <div className='font-poppins mt-15'>
+    <div className='font-poppins mt-10'>
       <Toaster />
       
       <header className='flex flex-col justify-start items-start'>
@@ -173,9 +173,11 @@ export const Marketplace = () => {
                         <Badge className="bg-blue-400 p-2">
                           <Link size={14}/>
                           On-Chain</Badge>
-                          <Badge className="bg-gray-100 text-green-600 gap-1">
-                            <ShieldCheck size={14}/>
-                            Verified Farm</Badge>
+                          {product.verification_status === 'verified' && (
+                            <Badge className="bg-gray-100 text-green-600 gap-1">
+                              <ShieldCheck size={14}/>
+                              Verified Farm</Badge>
+                          )}
                       </div>
                     </CardHeader>
                     <CardContent>
@@ -283,7 +285,8 @@ export const Marketplace = () => {
                         background: '#4caf50',
                         height: '12px',
                         borderRadius: '8px',
-                        transition: 'width 0.3s'
+                        transition: 'width 0.3s',
+                        opacity: request.current_amount >= request.target_amount ? 0.7 : 1
                       }}
                     ></div>
                   </div>
