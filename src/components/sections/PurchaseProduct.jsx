@@ -22,9 +22,11 @@ export const PurchaseProduct = ({ product, triggerLabel = "Purchase" }) => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
-      const tx = await contract.purchaseProduct(pid);
+      const weiAmount = await contract.fcfaToWei(price);
+      const tx = await contract.purchaseProduct(pid, {value: weiAmount});
       const receipt = await tx.wait();
       console.log("Product purchased! TX:", receipt.transactionHash);
+      alert("Product purchased successfully!")
     } catch (error) {
       console.error("Error purchasing product:", error)
       alert(error.message)

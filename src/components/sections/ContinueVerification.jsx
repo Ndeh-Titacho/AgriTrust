@@ -23,6 +23,7 @@ import { Input } from '../ui/input'
 import { useState } from 'react'
 import { ethers } from "ethers"
 import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
+import { supabase } from '../../supabase'
 
 export const ContinueVerification = () => {
 
@@ -51,41 +52,52 @@ export const ContinueVerification = () => {
 
     try {
       //upload to blockchain
-            const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-            const provider = new ethers.providers.Web3Provider(window.ethereum);
-            const signer = await provider.getSigner();
-            const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
-      
-            const tx = await contract.verifyProducts(
-             
-              Number(formData.pid),
-              Number(formData.verificationStage),
-              Number(formData.verificationStatus),
-              formData.comment
-            );
-      
-            const receipt = await tx.wait();
-            console.log("Product verified! TX:", receipt.transactionHash);
-      
-            let pid = null;
-           // Filter for a specific event by name
+      const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
+    
+      const tx = await contract.verifyProducts(
+        Number(formData.pid),
+        Number(formData.verificationStage),
+        Number(formData.verificationStatus),
+        formData.comment
+      );
+
+      const receipt = await tx.wait();
+      console.log("Product verified! TX:", receipt.transactionHash);
+
+      // Update Supabase after successful blockchain transaction
+      if (formData.verificationStage === "2" && formData.verificationStatus === "1") {
+        const { error } = await supabase
+          .from('products')
+          .update({ 
+            verification_status: 'verified',
+            verified_at: new Date().toISOString(),
+            verified_by: await signer.getAddress()
+          })
+          .eq('id', formData.pid)
+
+        if (error) throw error
+      }
+
+      let pid = null;
+      // Filter for a specific event by name
       const ProductVerifiedEvents = receipt.events?.filter(
         (x) => x.event === "ProductVerified"
       );
       
       if (ProductVerifiedEvents && ProductVerifiedEvents.length > 0) {
         const event = ProductVerifiedEvents[0];
-       pid = event.args.pid.toString();
+        pid = event.args.pid.toString();
         const stage = event.args.stage.toString();
         console.log("ProductVerified event args:", ...event.args, pid, stage);
+        alert("Product verified successfully!")
       }
-      
     } catch (error) {
       console.error("Error verifying product!",error)
       alert(error.message)
-      
     }
-
   }
   return (
     <div>

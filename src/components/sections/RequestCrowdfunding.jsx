@@ -60,11 +60,11 @@ export const RequestCrowdfunding = () => {
       const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
 
      
-
+      const amountInWei = await contract.fcfaToWei(Number(formData.amount));
       const tx = await contract.startCrowdfundingCampaign(
         formData.description,
-        Number(formData.amount),
-        Number(formData.amount),
+        amountInWei,
+        Number(formData.duration),
         
         
       );
@@ -72,7 +72,7 @@ export const RequestCrowdfunding = () => {
      
 
       const receipt = await tx.wait();
-      console.log("Product listed! TX:", receipt.transactionHash);
+      console.log("Campaign started! TX:", receipt.transactionHash);
      // Filter for a specific event by name
 
 // Log all events
@@ -92,7 +92,9 @@ if (crowdfundingEvents && crowdfundingEvents.length > 0) {
   const event = crowdfundingEvents[0];
   console.log("Event args:", event.args);
   console.log("cid:", event.args.cid.toString());
-  console.log("goal:", event.args.goal.toString());
+  console.log("goal in FCFA:", formData.amount + "XAF");
+  console.log("goal in wei:", event.args.goal.toString());
+  console.log("duration:", formData.duration + " days");
   cid = event.args.cid.toString();
 }
 

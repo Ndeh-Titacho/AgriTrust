@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../supabase';
 
 const Web3AuthContext = createContext();
 
