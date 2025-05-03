@@ -6,15 +6,23 @@ import { supabase } from '../../supabase'
 import { toast } from 'sonner'
 import { ethers } from "ethers"
 import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
+import { VerificationStage } from '../../components/sections/VerificationStage'
 
 export const AdminDashboard = () => {
   const [pendingVerifiers, setPendingVerifiers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [userCount, setUserCount] = useState(0)
+  const [activeUsers,setActiveUsers] = useState(0)
 
   useEffect(() => {
     fetchPendingVerifiers()
+    fetchAllUsers()
+    fetchActiveUsers()
   }, [])
 
+
+
+  
   const fetchPendingVerifiers = async () => {
     try {
       setLoading(true)
@@ -92,6 +100,40 @@ export const AdminDashboard = () => {
     }
   }
 
+
+  const fetchAllUsers = async() => {
+      try {
+        const { count, error} = await supabase
+        .from('web3_users')
+        .select('id', {count: 'exact'})
+
+        if (error) {
+          throw error
+        } else {
+          setUserCount(count)
+        }
+      } catch (error) {
+        console.error("Error fetching total Number of users",error)
+      }
+  }
+
+  const fetchActiveUsers = async() => {
+    try {
+      const {data, error} = await supabase
+      .from('web3_users')
+      .select('*')
+      .eq('status','active')
+
+      if(error){
+        throw error
+      }else {
+        setActiveUsers(data.length)
+      }
+    } catch (error) {
+      console.error("Error fetching all active users",error)
+    }
+  }
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
@@ -107,7 +149,7 @@ export const AdminDashboard = () => {
             <Users className="h-6 w-6 text-blue-500" />
           </div>
           <div className="mt-4">
-            <p className="text-3xl font-bold">125</p>
+            <p className="text-3xl font-bold">{userCount}</p>
           </div>
         </Card>
 
@@ -147,15 +189,15 @@ export const AdminDashboard = () => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Total Users</span>
-              <span className="text-xl font-bold">125</span>
+              <span className="text-xl font-bold">{userCount}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Active Users</span>
-              <span className="text-xl font-bold text-green-600">102</span>
+              <span className="text-xl font-bold text-green-600">{activeUsers}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Pending Verifications</span>
-              <span className="text-xl font-bold text-yellow-600">15</span>
+              <span className="text-xl font-bold text-yellow-600">{pendingVerifiers.length}</span>
             </div>
           </div>
           <Button className="mt-4 w-full">Manage Users</Button>
@@ -208,6 +250,9 @@ export const AdminDashboard = () => {
           )}
         </Card>
       </div>
+<div className="mt-6">
+     <VerificationStage/>
+</div>
     </div>
   )
 }
