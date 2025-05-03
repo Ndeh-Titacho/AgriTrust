@@ -6,7 +6,7 @@ import { useWallet } from '../../context/WalletContext'
 import { supabase } from '../../supabase'
 import { PendingVerifications } from '@/components/sections/PendingVerifications'
 import { CompletedVerifications } from '@/components/sections/CompletedVerifications'
-
+import { VerificationStage } from '@/components/sections/VerificationStage'
 
 export const VerifierDashboard = () => {
   const { account, status } = useWallet()
@@ -215,6 +215,10 @@ export const VerifierDashboard = () => {
           <CompletedVerifications />
         )}
         {/* You can add more components here for other tabs */}
+      </div>
+
+      <div>
+        <VerificationStage/>
       </div>
     </div>
   );
