@@ -59,7 +59,7 @@ export const AdminDashboard = () => {
   }
 
   // Upload to blockchain
-  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Example contract address
+  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; 
   const provider = new ethers.providers.Web3Provider(window.ethereum);
   const signer = await provider.getSigner();
   const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
@@ -99,6 +99,26 @@ export const AdminDashboard = () => {
       alert(error.message || 'Failed to approve verifier')
     }
   }
+
+  const rejectVerifier = async (verifierId) => {
+    try {
+
+   
+      // Update the status in Supabase
+      const { error } = await supabase
+        .from('web3_users')
+        .update({ status: 'rejected' })
+        .eq('id', verifierId)
+      if (error) throw error
+      alert('Verifier rejected successfully!')
+      // Refresh the list
+      fetchPendingVerifiers()
+    } catch (error) {
+      console.error('Error rejecting verifier:', error)
+      alert(error.message || 'Failed to reject verifier')
+    }
+  }
+  
 
 
   const fetchAllUsers = async() => {

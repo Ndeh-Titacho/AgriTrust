@@ -10,6 +10,7 @@ import {
   import { Wheat, ShieldCheck, ArrowRightLeft   } from 'lucide-react'
   import { Table } from '../sections/Table'
   import { useProducts } from '../../context/ProductContext';
+  import { FarmerTransactions } from './FarmerTransactions';
 
 export const Overview = () => {
 
@@ -91,7 +92,7 @@ export const Overview = () => {
                 </CardTitle>
             </CardHeader>
             <CardContent>
-                <Table />
+                <FarmerTransactions />
             </CardContent>
         </Card>
     </div>
