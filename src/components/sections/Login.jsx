@@ -35,6 +35,13 @@ export const Login = () => {
       icon: <Shield className="h-6 w-6 text-purple-600" />,
       path: '/auth?role=verifier',
       color: 'bg-purple-50 text-purple-700'
+    },
+    {
+      title: 'Financial Institution',
+      description: 'Manage financial transactions and services',
+      icon: <Wallet className="h-6 w-6 text-yellow-600" />,
+      path: '/auth?role=financial',
+      color: 'bg-yellow-50 text-yellow-700'
     }
   ]
 
