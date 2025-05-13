@@ -56,9 +56,14 @@ export const ContinueVerification = () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, FarmSupplyChain.abi, signer);
-    
+  
+      // Ensure pid is a valid number before converting
+      if (!formData.pid || isNaN(Number(formData.pid))) {
+        throw new Error('Invalid product ID');
+      }
+
       const tx = await contract.verifyProducts(
-        Number(formData.pid),
+        ethers.BigNumber.from(formData.pid),
         Number(formData.verificationStage),
         Number(formData.verificationStatus),
         formData.comment
@@ -76,7 +81,7 @@ export const ContinueVerification = () => {
             verified_at: new Date().toISOString(),
             verified_by: await signer.getAddress()
           })
-          .eq('id', formData.pid)
+          .eq('pid', formData.pid)
 
         if (error) throw error
       }

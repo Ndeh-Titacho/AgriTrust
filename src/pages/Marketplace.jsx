@@ -17,6 +17,8 @@ import { Toaster } from "sonner"
 import { motion } from 'framer-motion';
 import { SupportCrowdfund } from '../components/sections/SupportCrowdfund'
 import { PurchaseProduct } from '../components/sections/PurchaseProduct'
+import { VerificationStage } from '../components/sections/VerificationStage'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../components/ui/dialog";
 
 
 export const Marketplace = () => {
@@ -28,6 +30,7 @@ export const Marketplace = () => {
   const [error, setError] = useState(null)
   const [openDropdown, setOpenDropdown] = useState(null);
   const [activeTab, setActiveTab] = useState('marketplace');
+  const [viewVerificationPid, setViewVerificationPid] = useState(null)
 
   useEffect(() => {
     fetchProducts()
@@ -231,7 +234,37 @@ export const Marketplace = () => {
                               <span className='text-gray-500'> Blockchain verified origin</span>
                             </span>
                             <span>
-                              <Button variant="link" className="text-green-700 pt-1">View Certificate</Button>
+                              <Button
+                               variant="link" 
+                               className="text-green-700 pt-1"
+                               onClick={() => setViewVerificationPid(product.id)}>View Verification
+                               </Button>
+                               {viewVerificationPid === product.id && (
+                               <Dialog open={!!viewVerificationPid} onOpenChange={() => setViewVerificationPid(null)}>
+                               <DialogContent
+                                 className="w-[95%] max-w-[1400px] p-8"
+                                 style={{ minHeight: '500px', maxHeight: '90vh', overflowY: 'auto' }}
+                               >
+                                 <DialogHeader>
+                                   <DialogTitle>Product Verification Certificate</DialogTitle>
+                                   <DialogDescription>
+                                     Blockchain-based verification for this product.
+                                   </DialogDescription>
+                                 </DialogHeader>
+                                 <div className="w-full overflow-x-auto">
+                                    <VerificationStage 
+                                      pid={viewVerificationPid} 
+                                      onClick={() => setViewVerificationPid(null)} 
+                                    />
+                                  </div>
+                                 <DialogFooter>
+                                   <DialogClose asChild>
+                                     <Button onClick={() => setViewVerificationPid(null)}>Close</Button>
+                                   </DialogClose>
+                                 </DialogFooter>
+                               </DialogContent>
+                             </Dialog>
+                               )} 
                             </span>
                           </div>
                           

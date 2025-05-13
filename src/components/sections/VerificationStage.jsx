@@ -186,7 +186,58 @@ export const VerificationStage = () => {
             </div>
           ) : (
             <p className="text-gray-500 text-center mt-8">No verification data available</p>
-          )}
+          )}<div className="w-full max-w-3xl mx-auto px-2 sm:px-4 py-4">
+            <div className="flex flex-col gap-4">
+              {verifications.map((verification, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white rounded-lg shadow p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+                >
+                  {/* Status and Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                      {/* Status indicator and text */}
+                      <span
+                        className={`inline-block w-3 h-3 rounded-full mr-2 ${
+                          verification.status === '0'
+                            ? 'bg-yellow-400'
+                            : verification.status === '1'
+                            ? 'bg-emerald-500'
+                            : verification.status === '2'
+                            ? 'bg-red-500'
+                            : 'bg-gray-400'
+                        }`}
+                      ></span>
+                      <p
+                        className={`text-gray-900 ${
+                          verification.status === '0'
+                            ? 'text-yellow-500'
+                            : verification.status === '1'
+                            ? 'text-emerald-600'
+                            : verification.status === '2'
+                            ? 'text-red-600'
+                            : ''
+                        }`}
+                      >
+                        {verification.status}
+                      </p>
+                    </div>
+                  </div>
+                  {/* Details Section */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-600">Verifier:</p>
+                    <p className="text-gray-900 break-all text-xs sm:text-sm">
+                      {verification.verifier}
+                    </p>
+                    <p className="font-medium text-gray-600 mt-2">Comments:</p>
+                    <p className="text-gray-900 break-words text-xs sm:text-sm">{verification.comments}</p>
+                    <p className="font-medium text-gray-600 mt-2">Timestamp:</p>
+                    <p className="text-gray-900 text-xs sm:text-sm">{verification.timestamp}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Card>
     </div>
