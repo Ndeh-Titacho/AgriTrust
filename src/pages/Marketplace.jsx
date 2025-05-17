@@ -12,13 +12,13 @@ import { Badge } from '../components/ui/badge'
 import { Link, ShieldCheck, Tag, Search, Wheat, ChevronDown, ChevronUp, CircleAlert } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { supabase } from '../supabase'
-import { toast } from "sonner"
-import { Toaster } from "sonner"
+import { toast } from 'sonner'
 import { motion } from 'framer-motion';
 import { SupportCrowdfund } from '../components/sections/SupportCrowdfund'
 import { PurchaseProduct } from '../components/sections/PurchaseProduct'
 import { VerificationStage } from '../components/sections/VerificationStage'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../components/ui/dialog";
+import ChatButton from '../components/Chat/ChatButton'
 
 
 export const Marketplace = () => {
@@ -45,10 +45,12 @@ export const Marketplace = () => {
         .from('products')
         .select('*')
         .order('created_at', { ascending: false })
+      
       if (error) throw error
       if (!data || data.length === 0) {
         throw new Error('No products found')
       }
+      toast.success("Products fetched successfully", { id: 'products' })
       setProducts(data)
     } catch (error) {
       console.error('Error fetching products:', error)
@@ -67,6 +69,7 @@ export const Marketplace = () => {
         .order('created_at', { ascending: false })
       if (error) throw error
       setCrowdfunding(data || [])
+      toast.success("Crowdfunding requests fetched successfully", { id: 'crowdfunding' })
     } catch (error) {
       console.error('Error fetching crowdfunding requests:', error)
       toast.error(error.message || "Failed to fetch crowdfunding requests")
@@ -99,7 +102,7 @@ export const Marketplace = () => {
   
   return (
     <div className='font-poppins mt-10'>
-      <Toaster />
+      
       
       <header className='flex flex-col justify-start items-start'>
         <h1 className='font-bold text-4xl'>Marketplace</h1>
@@ -208,6 +211,9 @@ export const Marketplace = () => {
                             <span className='text-gray-500'>
                               {product.inventory} in stock
                             </span>
+                          </span>
+                          <span className='flex gap-1 items-center'>
+                            <ChatButton userAddress={product.farmer_address}/>
                           </span>
                           
                         </div>

@@ -87,6 +87,7 @@ export const AuthPage = () => {
             navigate('/marketplace')
         }
       }
+      
     } catch (error) {
       setAuthError(error.message)
     } finally {

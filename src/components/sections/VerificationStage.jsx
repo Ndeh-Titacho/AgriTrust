@@ -3,7 +3,6 @@ import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { ethers } from "ethers"
 import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
-import { toast } from 'sonner'
 import { useState } from 'react'
 
 export const VerificationStage = () => {
@@ -33,6 +32,7 @@ export const VerificationStage = () => {
         const productId = ethers.BigNumber.from(pid)
         
         const data = await contract.getProductVerifications(productId)
+        toast.success("Verification progress fetched successfully")
         
         // Convert the data to a more readable format
         const formattedData = data.map(verification => ({
