@@ -8,7 +8,7 @@ import { WalletProvider } from './context/WalletContext'
 import { Dashboard } from './pages/Dashboard'
 import { AuthContextProvider } from './context/supabaseAuthContext'
 import { Marketplace } from './pages/Marketplace'
-
+import { Toaster } from "./components/ui/sonner"
 import { AuthPage } from './pages/AuthPage'
 import { ProfileLayout } from './components/ui/ProfileLayout'
 import { FarmerDashboard } from './pages/dashboards/FarmerDashboard'
@@ -21,6 +21,7 @@ import { Web3AuthProvider } from './context/Web3AuthContext';
 
 function App() {
   return (
+    <ChatProvider>
     <Web3AuthProvider>
      
         <AuthContextProvider>
@@ -46,10 +47,12 @@ function App() {
                 
                
             </Routes>
+            <Toaster position="top-right" duration={5000} richColors/>
           </WalletProvider>
         </AuthContextProvider>
     
     </Web3AuthProvider>
+    </ChatProvider>
   )
 }
 

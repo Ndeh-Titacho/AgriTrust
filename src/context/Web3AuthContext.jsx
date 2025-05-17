@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { toast } from 'sonner'
 import { supabase } from '../supabase';
 
 const Web3AuthContext = createContext();
@@ -12,7 +13,8 @@ export const Web3AuthProvider = ({ children }) => {
   const connectWallet = async (requestedRole) => {
     try {
       if (!window.ethereum) {
-        throw new Error('Please install MetaMask');
+        toast.error("Please install MetaMask")
+        return
       }
 
       setLoading(true);
@@ -34,10 +36,12 @@ export const Web3AuthProvider = ({ children }) => {
 
       setAccount(address);
       setUserRole(user?.role || null);
+      toast.success("Wallet connected successfully", { id: 'wallet' })
       
       return { address, role: user?.role };
     } catch (error) {
       console.error('Error connecting wallet:', error);
+      toast.error("Failed to connect wallet")
       throw error;
     } finally {
       setLoading(false);

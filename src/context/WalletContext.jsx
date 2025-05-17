@@ -145,6 +145,7 @@ export const WalletProvider = ({ children }) => {
 
     } catch (error) {
       console.error("Error connecting wallet:", error)
+      toast.error("Failed to connect wallet", { id: 'wallet' })
       setError(error.message)
       setAccount("")
       setUserRole("")
@@ -156,6 +157,7 @@ export const WalletProvider = ({ children }) => {
   const disconnectWallet = () => {
     setAccount("")
     setUserRole("")
+    toast.success("Wallet disconnected successfully", { id: 'wallet' })
   }
 
   
