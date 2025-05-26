@@ -9,6 +9,9 @@ import { Verifications } from '../../components/sections/Verifications'
 import { AddProductModal } from '../../components/sections/AddProduct'
 import { RequestCrowdfunding } from '../../components/sections/RequestCrowdfunding'
 import { ProductProvider } from '../../context/ProductContext';
+import { FarmerTransactions } from '../../components/sections/FarmerTransactions'
+
+
 
 export const FarmerDashboard = () =>  {
   const { account } = useWallet()
@@ -88,6 +91,11 @@ export const FarmerDashboard = () =>  {
           </ul>
           <div className="mt-4"> {/* Added margin to separate content */}
             {renderComponent()}
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="w-full">
+            <FarmerTransactions />
           </div>
         </div>
       

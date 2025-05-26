@@ -9,7 +9,7 @@ import {
 } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Badge } from '../components/ui/badge'
-import { Link, ShieldCheck, Tag, Search, Wheat, ChevronDown, ChevronUp, CircleAlert } from 'lucide-react'
+import { Link, ShieldCheck, Tag, Search, Wheat, ChevronDown, ChevronUp, CircleAlert, MessageCircle, CircleUserRound  } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { supabase } from '../supabase'
 import { toast } from 'sonner'
@@ -18,7 +18,7 @@ import { SupportCrowdfund } from '../components/sections/SupportCrowdfund'
 import { PurchaseProduct } from '../components/sections/PurchaseProduct'
 import { VerificationStage } from '../components/sections/VerificationStage'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "../components/ui/dialog";
-import ChatButton from '../components/Chat/ChatButton'
+import { WhatsAppContact } from '../components/WhatsAppContact'
 
 
 export const Marketplace = () => {
@@ -212,8 +212,17 @@ export const Marketplace = () => {
                               {product.inventory} in stock
                             </span>
                           </span>
+                         
+                        </div>
+                        <div className='flex justify-between items-center'>
                           <span className='flex gap-1 items-center'>
-                            <ChatButton userAddress={product.farmer_address}/>
+                            <CircleUserRound size={16} className='text-green-600'/>
+                            <span className='text-gray-500'>
+                            Whatsapp contact
+                            </span>
+                          </span>
+                          <span className='flex gap-1 items-center'>
+                            <WhatsAppContact phoneNumber={product.farmer_phone} productId={product.pid} productName={product.name} />
                           </span>
                           
                         </div>
@@ -229,7 +238,7 @@ export const Marketplace = () => {
                           }}
                           className='overflow-hidden'
                         >
-                          <div className='flex flex-col items-start items-center mt-4'>
+                          <div className='flex flex-col items-start mt-4'>
                           <p className='text-xl text-black font-medium '>Product Details</p>
                           <p className='mt-1 text-gray-600'>{product.description}</p>
                           </div>
