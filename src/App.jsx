@@ -21,7 +21,7 @@ import { Web3AuthProvider } from './context/Web3AuthContext';
 
 function App() {
   return (
-    <ChatProvider>
+    
     <Web3AuthProvider>
      
         <AuthContextProvider>
@@ -45,14 +45,14 @@ function App() {
               </Route>
                 
                 
-               
             </Routes>
             <Toaster position="top-right" duration={5000} richColors/>
-          </WalletProvider>
+
+            </WalletProvider>
         </AuthContextProvider>
     
     </Web3AuthProvider>
-    </ChatProvider>
+    
   )
 }
 

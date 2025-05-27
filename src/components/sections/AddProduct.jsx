@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '../ui/button'
 import {
@@ -37,6 +37,8 @@ export const AddProductModal = () => {
     productImage: null,
     farmingInputs: '',
   })
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleClose = () => {
     setOpen(false)
@@ -75,7 +77,8 @@ export const AddProductModal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+    setIsLoading(true)
+
     try {
       // Show loading toast
       toast.loading('Uploading product...')
@@ -116,21 +119,22 @@ if (productListedEvents && productListedEvents.length > 0) {
 }
      
       //upload to supabase
-      const { error } = await supabase
+      const { error: supabaseError } = await supabase
         .from('products')
-        .insert({
-          pid: pid,
-          name: formData.productName,
-          type: formData.productType,
-          price: parseFloat(formData.productPrice),
-          inventory: parseInt(formData.inventory),
-          description: formData.productDescription,
-          farmingInputs: formData.farmingInputs,
-          image_url: formData.productImage,
-          created_at: new Date().toISOString()
-        })
-      
-      if (error) throw error
+        .insert([
+          {
+            pid: pid,
+            name: formData.productName,
+            description: formData.productDescription,
+            price: formData.productPrice,
+            inventory: formData.inventory,
+            image_url: formData.productImage,
+            type: formData.productType,
+            farmer_phone: phoneNumber // Add phone number
+          }
+        ])
+
+      if (supabaseError) throw supabaseError
       
       // Show success toast
       toast.success("Product uploaded successfully!")
@@ -152,6 +156,8 @@ if (productListedEvents && productListedEvents.length > 0) {
       // Show error toast
       toast.error(error.message || "Failed to upload product")
       console.error('Error uploading product:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -199,11 +205,11 @@ if (productListedEvents && productListedEvents.length > 0) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Fruits</SelectLabel>
-                      <SelectItem value="Fruit">Apple</SelectItem>
-                      <SelectItem value="Vegetable">Banana</SelectItem>
-                      <SelectItem value="Grain">Blueberry</SelectItem>
-                      <SelectItem value="Dairy">Grapes</SelectItem>
-                      <SelectItem value="Specialty">Pineapple</SelectItem>
+                      <SelectItem value="Fruit">Grain</SelectItem>
+                      <SelectItem value="Vegetable">Fruits</SelectItem>
+                      <SelectItem value="Grain">Vegetable</SelectItem>
+                      <SelectItem value="Dairy">Diary</SelectItem>
+                      <SelectItem value="Specialty">Specialty</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -263,6 +269,25 @@ if (productListedEvents && productListedEvents.length > 0) {
                 ></textarea>
               </div>
 
+                {/* Add phone number field */}
+          <div className="grid w-full items-center gap-2">
+            <label htmlFor="phone" className="text-sm font-medium">Phone Number</label>
+            <input
+              type="tel"
+              id="phone"
+              className="w-full rounded-md border border-gray-300 p-2"
+              placeholder="e.g., 612345678"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+              pattern="^(237)?[0-9]{9}$"
+              title="Please enter a valid Cameroon phone number"
+              required
+            />
+            <span className="text-xs text-gray-500">
+              Enter your Cameroon phone number (e.g., 612345678)
+            </span>
+          </div>
+
               <div className="space-y-2">
                 <label htmlFor="productImage" className="text-sm font-medium">Product Image</label>
                 <div className="flex flex-col gap-2">
@@ -295,14 +320,23 @@ if (productListedEvents && productListedEvents.length > 0) {
             </div>
           </div>
 
+        
+
           <div className="flex justify-end space-x-2 pt-4 border-t">
             <DialogClose asChild>
               <Button variant="outline" type="button" onClick={() => setImagePreview(false)}>
                 Cancel
               </Button>
             </DialogClose>
-            <Button variant="secondary" type="submit" className="bg-green-600 text-white hover:bg-green-500">
-              Save Product
+            <Button variant="secondary" type="submit" className="bg-green-600 text-white hover:bg-green-500" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Plus className="mr-2 h-4 w-4 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Save Product'
+              )}
             </Button>
           </div>
         </form>

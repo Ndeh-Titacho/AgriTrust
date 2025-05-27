@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react'
 import { ethers } from 'ethers'
 import { supabase } from '../supabase'
+import { toast } from 'sonner'
 
 const WalletContext = createContext({})
 
