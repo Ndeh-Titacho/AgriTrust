@@ -111,7 +111,7 @@ export const VerifierDashboard = () => {
   if (loading) {
     return (
       <div className='flex flex-col items-start justify-start'>
-             <h1 className="text-3xl font-bold">Verifier Portal </h1>
+             <h1 className="text-3xl font-bold">Verifier Dashboard </h1>
              <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
              <span className='text-gray-600 text-left'>Evaluate farms and issue blockchain certificates</span>
             
@@ -124,7 +124,7 @@ export const VerifierDashboard = () => {
     return (
       <div className="p-6">
           <div className='flex flex-col items-start justify-start'>
-             <h1 className="text-3xl font-bold">Verifier Portal</h1>
+             <h1 className="text-3xl font-bold">Verifier Dashboard </h1>
              <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
              <span className='text-gray-600 text-left'>Evaluate farms and issue blockchain certificates</span>
             

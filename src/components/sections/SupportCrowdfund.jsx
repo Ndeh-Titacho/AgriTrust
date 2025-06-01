@@ -13,6 +13,7 @@ import { Button } from '../ui/button';
 import { ethers } from "ethers"
 import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
 import { supabase } from '../../supabase'; // Import supabase instance
+import { toast } from 'sonner'
 
 export const SupportCrowdfund = ({ open, onOpenChange, onSupport }) => {
   const [cid, setCid] = useState('');
@@ -30,7 +31,7 @@ export const SupportCrowdfund = ({ open, onOpenChange, onSupport }) => {
 
     try {
       if (!cid) {
-        alert('Campaign ID (cid) is missing.');
+        toast.error('Campaign ID (cid) is missing.');
         return;
       }
 
@@ -48,7 +49,7 @@ export const SupportCrowdfund = ({ open, onOpenChange, onSupport }) => {
       const tx = await contract.contributeToCampaign(cid, {value: weiAmount});
       const receipt = await tx.wait(); // Wait for transaction confirmation
       console.log("Contribution successful! TX:", receipt.transactionHash)
-      alert('Contribution successful!');
+      toast.success("Contribution successful!")
 
       // Update Supabase with the new amount
       const { data: campaignData, error: campaignError } = await supabase
@@ -100,7 +101,7 @@ export const SupportCrowdfund = ({ open, onOpenChange, onSupport }) => {
     }
     } catch (err) {
       console.error('Contribution failed:', err);
-      alert('Contribution failed: ' + err.message);
+      toast.error('Contribution failed: ' + err.message);
     }
   };
 

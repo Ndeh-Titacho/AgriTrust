@@ -24,6 +24,7 @@ import { useState } from 'react'
 import { ethers } from "ethers"
 import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
 import { supabase } from '../../supabase'
+import { toast } from 'sonner'
 
 export const ContinueVerification = () => {
 
@@ -97,11 +98,11 @@ export const ContinueVerification = () => {
         pid = event.args.pid.toString();
         const stage = event.args.stage.toString();
         console.log("ProductVerified event args:", ...event.args, pid, stage);
-        alert("Product verified successfully!")
+        toast.success("Product verified successfully!")
       }
     } catch (error) {
       console.error("Error verifying product!",error)
-      alert(error.message)
+      toast.error(error.message)
     }
   }
   return (

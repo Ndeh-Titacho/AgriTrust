@@ -113,6 +113,7 @@ export const FarmerTransactions = () => {
             const formattedData = data
                 .map(parseTransaction)
                 .filter(transaction => transaction !== null)
+                .slice(-5) // Get the last 5 transactions
 
             console.log('Formatted transactions:', formattedData)
             setTransactions(formattedData)
@@ -137,7 +138,7 @@ export const FarmerTransactions = () => {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TxID</th>
-                                <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PID</th>
+                                {/* <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PID</th> */}
                                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     <div className="w-24 truncate">From</div>
                                 </th>
@@ -155,9 +156,9 @@ export const FarmerTransactions = () => {
                                     <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
                                         <div className="w-16 truncate">{transaction.tid}</div>
                                     </td>
-                                    <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                    {/* <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                         <div className="w-16 truncate">{transaction.pid}</div>
-                                    </td>
+                                    </td> */}
                                     <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                         <div className="w-24 truncate" title={transaction.from}>
                                             {transaction.from}
