@@ -93,11 +93,11 @@ export const FarmerDashboard = () =>  {
             {renderComponent()}
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4">
+        {/* <div className="grid grid-cols-1 gap-4">
           <div className="w-full">
             <FarmerTransactions />
           </div>
-        </div>
+        </div> */}
       
       </div>
     </div>

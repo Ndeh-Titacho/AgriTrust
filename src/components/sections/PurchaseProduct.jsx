@@ -12,6 +12,7 @@ import {
 import { Button } from '../ui/button';
 import { ethers } from "ethers"
 import FarmSupplyChain from "../../abi/FarmSupplyChain.json"
+import { toast } from 'sonner'
 
 export const PurchaseProduct = ({ product, triggerLabel = "Purchase" }) => {
   const { name, pid, price } = product || {};
@@ -26,10 +27,10 @@ export const PurchaseProduct = ({ product, triggerLabel = "Purchase" }) => {
       const tx = await contract.purchaseProduct(pid, {value: weiAmount});
       const receipt = await tx.wait();
       console.log("Product purchased! TX:", receipt.transactionHash);
-      alert("Product purchased successfully!")
+      toast.success("Product purchased successfully!")
     } catch (error) {
       console.error("Error purchasing product:", error)
-      alert(error.message)
+      toast.error(error.message)
     }
   }
 

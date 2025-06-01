@@ -69,6 +69,7 @@ export const AdminDashboard = () => {
 
   const receipt = await tx.wait();
   console.log("Verifier added! TX:", receipt.transactionHash);
+  toast.success("Verifier added successfully!", verifier)
 
             
                
@@ -110,12 +111,12 @@ export const AdminDashboard = () => {
         .update({ status: 'rejected' })
         .eq('id', verifierId)
       if (error) throw error
-      alert('Verifier rejected successfully!')
+      toast.success('Verifier rejected successfully!')
       // Refresh the list
       fetchPendingVerifiers()
     } catch (error) {
       console.error('Error rejecting verifier:', error)
-      alert(error.message || 'Failed to reject verifier')
+      toast.error(error.message || 'Failed to reject verifier')
     }
   }
   

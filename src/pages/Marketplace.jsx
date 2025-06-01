@@ -102,34 +102,36 @@ export const Marketplace = () => {
   
   return (
     <div className='font-poppins mt-10'>
-      
-      
-      <header className='flex flex-col justify-start items-start'>
-        <h1 className='font-bold text-4xl'>Marketplace</h1>
-        <span className='text-gray-500'>Browse and purchase verified agricultural products</span>
-      </header>
+      {/* Sticky Header */}
+      <div className='sticky top-0 z-10 bg-white pt-4 pb-2'>
+        <header className='mb-4'>
+          <h1 className='font-bold text-4xl'>Marketplace</h1>
+          <span className='text-gray-500'>Browse and purchase verified agricultural products</span>
+        </header>
 
-      {/* Tabs */}
-      <div className="flex gap-4 mt-4 mb-8">
-        <button
-          className={`px-4 py-2 rounded-t-lg font-semibold border-b-2 transition-colors ${activeTab === 'marketplace' ? 'border-green-600 text-green-600 bg-gray-100' : 'border-transparent text-gray-500 bg-transparent'}`}
-          onClick={() => setActiveTab('marketplace')}
-        >
-          Marketplace
-        </button>
-        <button
-          className={`px-4 py-2 rounded-t-lg font-semibold border-b-2 transition-colors ${activeTab === 'crowdfund' ? 'border-green-600 text-green-600 bg-gray-100' : 'border-transparent text-gray-500 bg-transparent'}`}
-          onClick={() => setActiveTab('crowdfund')}
-        >
-          Support Crowdfund
-        </button>
+        {/* Tabs */}
+        <div className="flex gap-4 mb-4 bg-white pb-2">
+          <button
+            className={`px-4 py-2 rounded-t-lg font-semibold border-b-2 transition-colors ${activeTab === 'marketplace' ? 'border-green-600 text-green-600 bg-gray-100' : 'border-transparent text-gray-500 bg-transparent'}`}
+            onClick={() => setActiveTab('marketplace')}
+          >
+            Marketplace
+          </button>
+          <button
+            className={`px-4 py-2 rounded-t-lg font-semibold border-b-2 transition-colors ${activeTab === 'crowdfund' ? 'border-green-600 text-green-600 bg-gray-100' : 'border-transparent text-gray-500 bg-transparent'}`}
+            onClick={() => setActiveTab('crowdfund')}
+          >
+            Support Crowdfund
+          </button>
+        </div>
       </div>
+
 
       {/* Tab Content */}
       {activeTab === 'marketplace' && (
         <>
           {/* Search Form */}
-          <div className='py-8'> 
+          <div className='py-4'>
             <Input 
               type='text' 
               placeholder="Search products..." 
