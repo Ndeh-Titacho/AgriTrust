@@ -17,13 +17,14 @@ import { VerifierDashboard } from './pages/dashboards/VerifierDashboard'
 import { FinancialDashboard } from './pages/dashboards/FinancialDashboard'
 import { AdminDashboard } from './pages/dashboards/AdminDashboard'
 import { Web3AuthProvider } from './context/Web3AuthContext';
-
+import { ChatProvider } from './contexts/ChatContext';
+import { Chatbot } from './components/chat/Chatbot';
 
 function App() {
   return (
     
     <Web3AuthProvider>
-     
+      <ChatProvider>
         <AuthContextProvider>
           <WalletProvider>
             <Routes>
@@ -47,10 +48,10 @@ function App() {
                 
             </Routes>
             <Toaster position="top-right" duration={5000} richColors/>
-
-            </WalletProvider>
+            <Chatbot />
+          </WalletProvider>
         </AuthContextProvider>
-    
+      </ChatProvider>
     </Web3AuthProvider>
     
   )

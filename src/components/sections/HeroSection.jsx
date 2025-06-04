@@ -1,9 +1,20 @@
-import React from 'react'
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Leaf, ArrowRight } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    navigate('/login');
+  };
+
+  const handleLearnMore = () => {
+    navigate('/about');
+  };
+
   return (
     <div className="flex min-h-[75vh] md:min-h-[calc(100vh-5rem)] items-center justify-center md:pt-20">
         <section className='w-full max-w-5xl space-y-8 px-4 sm:px-6 lg:px-8'>
@@ -32,7 +43,7 @@ export const HeroSection = () => {
                 </p>
             </div>
 
-            {/* Button Section - Updated */}
+            {/* Button Section */}
             <div className='flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-4 sm:px-0'>
                 <Button 
                     variant="default" 
@@ -40,7 +51,7 @@ export const HeroSection = () => {
                     className="w-full sm:w-auto rounded-full bg-green-600 hover:bg-green-700 
                       active:bg-green-800 text-white py-6 sm:py-3 text-lg sm:text-base
                       transition-all duration-200 touch-manipulation"
-                    onClick={() => console.log('Get Started clicked')}
+                    onClick={handleGetStarted}
                 >
                     Get Started <ArrowRight className="ml-2 h-5 w-5"/>
                 </Button>
@@ -50,12 +61,12 @@ export const HeroSection = () => {
                     className="w-full sm:w-auto rounded-full hover:bg-blue-500 hover:text-white
                       active:bg-blue-600 py-6 sm:py-3 text-lg sm:text-base
                       transition-all duration-200 touch-manipulation"
-                    onClick={() => console.log('Learn More clicked')}
+                    onClick={handleLearnMore}
                 >
                     Learn More
                 </Button>
             </div>
         </section>
     </div>
-  )
-}
+  );
+};
