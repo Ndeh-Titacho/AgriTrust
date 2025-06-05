@@ -13,6 +13,11 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true)
   const [userCount, setUserCount] = useState(0)
   const [activeUsers,setActiveUsers] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'farmer', 'verifier', 'admin'
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'pending', 'rejected'
 
   useEffect(() => {
     fetchPendingVerifiers()
@@ -20,9 +25,10 @@ export const AdminDashboard = () => {
     fetchActiveUsers()
   }, [])
 
+  useEffect(() => {
+    handleSearch({ preventDefault: () => {} });
+  }, [roleFilter, statusFilter]);
 
-
-  
   const fetchPendingVerifiers = async () => {
     try {
       setLoading(true)
@@ -92,7 +98,6 @@ export const AdminDashboard = () => {
         .eq('id', verifierId)
 
       if (error) throw error
-      alert('Verifier approved successfully!')
       // Refresh the list
       fetchPendingVerifiers()
     } catch (error) {
@@ -119,8 +124,71 @@ export const AdminDashboard = () => {
       toast.error(error.message || 'Failed to reject verifier')
     }
   }
-  
 
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    
+    try {
+      setIsSearching(true);
+      let query = supabase
+        .from('web3_users')
+        .select('*');
+
+      // Apply search query if exists
+      if (searchQuery.trim()) {
+        query = query.or(
+          `wallet_address.ilike.%${searchQuery}%,
+           email.ilike.%${searchQuery}%,
+           full_name.ilike.%${searchQuery}%`
+        );
+      }
+
+      // Apply role filter
+      if (roleFilter !== 'all') {
+        query = query.eq('role', roleFilter);
+      }
+
+      // Apply status filter
+      if (statusFilter !== 'all') {
+        query = query.eq('status', statusFilter);
+      }
+
+      // Execute the query
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      setSearchResults(data || []);
+    } catch (error) {
+      console.error('Error searching users:', error);
+      toast.error('Failed to search users');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const updateUserStatus = async (userId, newStatus) => {
+    try {
+      const { error } = await supabase
+        .from('web3_users')
+        .update({ status: newStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+      
+      // Update local state
+      setSearchResults(prev => 
+        prev.map(user => 
+          user.id === userId ? { ...user, status: newStatus } : user
+        )
+      );
+      
+      toast.success(`User status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Error updating user status:', error);
+      toast.error('Failed to update user status');
+    }
+  };
 
   const fetchAllUsers = async() => {
       try {
@@ -271,9 +339,136 @@ export const AdminDashboard = () => {
           )}
         </Card>
       </div>
-<div className="mt-6">
-     <VerificationStage/>
-</div>
+      <div className="mt-6">
+        <VerificationStage/>
+      </div>
+      <div className="mt-8">
+  <Card className="p-6">
+    <h2 className="text-xl font-semibold mb-4">Manage Users</h2>
+        
+        {/* Search Form */}
+        <form onSubmit={handleSearch} className="mb-6">
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by wallet, email, or name"
+              className="flex-1 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <Button variant='outline' type="submit" disabled={isSearching}>
+              {isSearching ? 'Searching...' : 'Search'}
+            </Button>
+          </div>
+          
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 mb-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="p-2 border rounded-md"
+              >
+                <option value="all">All Roles</option>
+                <option value="farmer">Farmers</option>
+                <option value="verifier">Verifiers</option>
+                <option value="admin">Admins</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="p-2 border rounded-md"
+              >
+                <option value="all">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        </form>
+        
+        {/* Search Results */}
+        {isSearching ? (
+          <div className="animate-pulse space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-20 bg-gray-200 rounded-md"></div>
+            ))}
+          </div>
+        ) : searchResults.length > 0 ? (
+          <div className="space-y-4">
+            {searchResults.map((user) => (
+              <div key={user.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="mb-2 md:mb-0">
+                  <div className="flex items-center space-x-2">
+                    <p className="font-medium">{user.wallet_address}</p>
+                    <span className={`px-2 py-1 text-xs rounded-full ${
+                      user.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                      user.role === 'verifier' ? 'bg-blue-100 text-blue-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>
+                      {user.role}
+                    </span>
+                  </div>
+                  {user.email && <p className="text-sm text-gray-600">{user.email}</p>}
+                  <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded-full ${
+                    user.status === 'active' ? 'bg-green-100 text-green-800' :
+                    user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {user.status}
+                  </span>
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mt-2 md:mt-0">
+                  {user.status !== 'active' && (
+                    <Button
+                      onClick={() => updateUserStatus(user.id, 'active')}
+                      variant="outline"
+                      size="sm"
+                      className="bg-green-50 text-green-700 hover:bg-green-100 border-green-200"
+                    >
+                      Activate
+                    </Button>
+                  )}
+                  {user.status !== 'pending' && (
+                    <Button
+                      onClick={() => updateUserStatus(user.id, 'pending')}
+                      variant="outline"
+                      size="sm"
+                      className="bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border-yellow-200"
+                    >
+                      Set Pending
+                    </Button>
+                  )}
+                  {user.status !== 'rejected' && (
+                    <Button
+                      onClick={() => updateUserStatus(user.id, 'rejected')}
+                      variant="outline"
+                      size="sm"
+                      className="bg-red-50 text-red-700 hover:bg-red-100 border-red-200"
+                    >
+                      Reject
+                    </Button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 text-center py-4">
+            {searchQuery || roleFilter !== 'all' || statusFilter !== 'all' 
+              ? 'No users found matching your criteria' 
+              : 'Search for users using the form above'}
+          </p>
+        )}
+      </Card>
+      </div>
     </div>
   )
 }

@@ -72,7 +72,7 @@ export const Navbar = () => {
                                 }
                             </span>
                         </Button>
-                        <Link to="/login">
+                        {/* <Link to="/login">
                             <Button 
                                 variant="outline" 
                                 size='default' 
@@ -81,7 +81,7 @@ export const Navbar = () => {
                                 <User className="h-4 w-4 text-indigo-600"/> 
                                 <span className="hidden sm:inline">Login</span>
                             </Button>
-                        </Link>
+                        </Link> */}
                     </div>
 
                     {/* Mobile Menu Button */}
