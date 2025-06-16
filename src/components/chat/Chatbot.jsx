@@ -5,7 +5,7 @@ import axios from 'axios';
 
 // Initialize Gemini API
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5:generateContent';
 
 if (!GEMINI_API_KEY) {
   console.warn('Gemini API key is not set. Chat functionality will be limited.');

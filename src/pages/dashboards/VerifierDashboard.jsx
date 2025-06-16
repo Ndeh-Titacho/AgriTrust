@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Card } from '../../components/ui/card'
 import { Button } from '../../components/ui/button'
-import { AlertTriangle, CheckCircle2, Clock, FileText, ShieldCheck, ClipboardList, CheckCircle } from 'lucide-react'
+import { AlertTriangle, CheckCircle2, Clock, FileText, ShieldCheck, ClipboardList, CheckCircle, Bell, X } from 'lucide-react'
 import { useWallet } from '../../context/WalletContext'
 import { supabase } from '../../supabase'
 import { PendingVerifications } from '@/components/sections/PendingVerifications'
 import { CompletedVerifications } from '@/components/sections/CompletedVerifications'
 import { VerificationStage } from '@/components/sections/VerificationStage'
+import toast from 'react-hot-toast'
 
 export const VerifierDashboard = () => {
   const { account, status } = useWallet()
@@ -15,6 +16,9 @@ export const VerifierDashboard = () => {
   const [productsToVerify, setProductsToVerify] = useState([])
   const [verificationHistory, setVerificationHistory] = useState([])
   const [activeComponent, setActiveComponent] = useState('')
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [verificationRequests, setVerificationRequests] = useState([])
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
     fetchUserStatus()
@@ -59,6 +63,98 @@ export const VerifierDashboard = () => {
       setLoading(false)
     }
   }
+
+  // Fetch verification requests for the current verifier
+  const fetchVerificationRequests = async () => {
+    if (!account) {
+      console.log('No account connected');
+      return;
+    }
+    
+    try {
+      console.log('Fetching verification requests for account:', account);
+      const { data, error } = await supabase
+        .from('verification_requests')
+        .select('*') // Changed from verifier_id to verifier_wallet to match your schema
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('Fetched verification requests:', data);
+      setVerificationRequests(data || []);
+      setUnreadCount(data?.length || 0);
+    } catch (error) {
+      console.error('Error in fetchVerificationRequests:', error);
+      if (toast) {
+        toast.error('Failed to load verification requests');
+      } else {
+        console.error('Toast is not available');
+      }
+    }
+  };
+
+  // Update verification request status
+  const updateRequestStatus = async (requestId, status) => {
+    try {
+      const { error } = await supabase
+        .from('verification_requests')
+        .update({ 
+          status, 
+          updated_at: new Date().toISOString(),
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+      
+      // Refresh the requests list
+      await fetchVerificationRequests();
+      return true;
+    } catch (error) {
+      console.error('Error updating request status:', error);
+      toast.error('Failed to update request status');
+      return false;
+    }
+  };
+
+  // Toggle notifications dropdown
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    // Mark as read when opening
+    if (!showNotifications && unreadCount > 0) {
+      setUnreadCount(0);
+    }
+  };
+
+  // Set up real-time subscription for verification requests
+  useEffect(() => {
+    if (!account) return;
+
+    fetchVerificationRequests();
+    
+    const subscription = supabase
+      .channel('verification_requests')
+      .on('postgres_changes', 
+        { 
+          event: '*',
+          schema: 'public',
+          table: 'verification_requests',
+          filter: `verifier_id=eq.${account}`
+        }, 
+        (payload) => {
+          fetchVerificationRequests();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [account]);
 
   const fetchVerificationHistory = async () => {
     try {
@@ -175,7 +271,8 @@ export const VerifierDashboard = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="min-h-screen bg-gray-50 relative">
+     
         <div className='flex flex-col items-start justify-start'>
              <h1 className="text-3xl font-bold">Verifier Portal</h1>
              <div className='grid grid-cols-1 md:grid-cols-2  w-full '>
@@ -183,6 +280,86 @@ export const VerifierDashboard = () => {
             
              </div>
              </div>
+      {/* Notification Bell */}
+      <div className="absolute top-8 right-8">
+        <button 
+          onClick={toggleNotifications}
+          className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+        >
+          <Bell className="h-6 w-6" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+        
+        {/* Notifications Dropdown */}
+        {showNotifications && (
+          <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-50">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-medium text-gray-900">Verification Requests</h3>
+                <button 
+                  onClick={() => setShowNotifications(false)}
+                  className="text-gray-400 hover:text-gray-500"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="max-h-96 overflow-y-auto">
+              {verificationRequests.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  No pending verification requests
+                </div>
+              ) : (
+                <ul className="divide-y divide-gray-200">
+                  {verificationRequests.map((request) => (
+                    <li key={request.id} className="p-4 hover:bg-gray-50">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">
+                            New Verification Request
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(request.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={async () => {
+                              const success = await updateRequestStatus(request.id, 'approved');
+                              if (success) {
+                                toast.success('Request approved');
+                              }
+                            }}
+                            className="text-green-600 hover:text-green-800 text-xs font-medium"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={async () => {
+                              const success = await updateRequestStatus(request.id, 'rejected');
+                              if (success) {
+                                toast.success('Request rejected');
+                              }
+                            }}
+                            className="text-red-600 hover:text-red-800 text-xs font-medium"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Navigation Section */}
       <nav className="nav mt-8">
         <ul className="flex flex-col sm:flex-row gap-3 w-full">
