@@ -19,6 +19,7 @@ import { AdminDashboard } from './pages/dashboards/AdminDashboard'
 import { Web3AuthProvider } from './context/Web3AuthContext';
 import { ChatProvider } from './contexts/ChatContext';
 import { Chatbot } from './components/chat/Chatbot';
+import { Contact } from './pages/Contact'
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/marketplace" element={<Marketplace />} />
               </Route>
 

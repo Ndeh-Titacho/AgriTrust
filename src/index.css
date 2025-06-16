@@ -126,3 +126,84 @@
     @apply m-0 p-0;
   }
 }
+
+/* Contact Page Styles */
+.contact-page {
+  padding: 2rem 0;
+  background-color: #f8f9fa;
+}
+
+.contact-info-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.contact-form-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.address-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.contact-details h4 {
+  color: #2c3e50;
+  margin-top: 1.5rem;
+  font-weight: 600;
+}
+
+.contact-details p {
+  margin: 0.5rem 0;
+  color: #34495e;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: #3498db;
+  border-color: #3498db;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+  border-color: #2980b9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-page {
+    padding: 1rem 0;
+  }
+  
+  .form-control {
+    font-size: 0.9rem;
+  }
+}
